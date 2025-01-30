@@ -1,0 +1,224 @@
+const Produtcs = require('../models').Produtcs
+const Owner = require('../models').OwnerProduct
+const Mark = require('../models').LabelProduct
+const Store = require('../models').Store
+const Label = require('../models').Labels
+const db = require('../models/index')
+const Op = db.Sequelize.Op
+
+async function All(req, res) {
+    try {
+        const produts = Produtcs.findAll({})
+
+        res.json({
+            status: 'success',
+            message: 'Get all produts',
+            data: produts
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        })
+    }
+}
+
+async function One(req, res) {
+    try {
+        const {product, category = null} = req.body
+
+        const find = await Produtcs.findAll({
+            where: {
+                name: {
+                    [Op.substring]: req.body.name
+                }
+            },
+            include: [
+                {
+                    model: Mark,
+                    as: 'productToLabel',
+                    where: {
+                        label_id: {
+                            [Op.or]: req.body.category
+                        }
+                    }
+                },{
+                    model: Owner,
+                    as: 'productToOwner',
+                    include: [
+                        {
+                            model: Store,
+                            as: 'ownerToStore'
+                        }
+                    ]
+                }
+            ]
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Get data with association',
+            data: find
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error: query error'
+        })
+    }
+}
+
+async function Create(req, res) {
+    try {
+        const newProduct = await Produtcs.create({
+            name: req.body.name,
+            description: req.body.description,
+            price: req.body.price,
+            stock: req.body.stock
+        })
+
+        const signProduct = await Owner.create({
+            store_id: req.body.store_id,
+            product_id: newProduct.id
+        })
+
+        if (newProduct) {
+            res.json({
+                status: 'success',
+                message: 'add product to store',
+                data: newProduct,
+                owner: signProduct
+            })
+        }
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal server error'
+        })
+    }
+}
+
+async function Destroy(req, res) {
+    try {
+        const destroy = await Produtcs.destroy({
+            where: {
+                id: req.body.id
+            }
+        })
+
+        const destroyOwnerProduct = await Owner.destroy({
+            where: {
+                product_id: req.body.id
+            }
+        })
+
+        res.json({
+            status: 'success',
+            message: 'destroy product from store'
+        })
+    } catch (err) {
+        res.json({
+            status: 'error',
+            message: 'Internal server error'
+        })
+    }
+}
+
+async function Update(req, res) {
+    try {
+        const edit = await Produtcs.update({
+            name: req.body.name,
+            description: req.body.description,
+            price: req.body.price,
+            stock: req.body.stock
+        }, {
+            where: {
+                id: req.body.id
+            }
+        })
+
+        res.json({
+            status: 'success',
+            message: 'update detail data product',
+            data: edit
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal server error'
+        })
+    }
+}
+
+async function MarkProduct(req, res) {
+    try {
+        const {product, labels} = req.body
+        const created = []
+        const deleted = []
+        const areNotInList = await Mark.findAll({
+            where: {
+                [Op.and]: [
+                    {
+                        product_id: product
+                    }, {
+                        label_id: {
+                            [Op.notIn]: labels
+                        }
+                    }
+                ]
+            }
+        })
+
+        const listProduct = await Mark.findAll({
+            where: {
+                product_id: product
+            }
+        })
+
+        const selection = labels.filter((val) => !listProduct.map((my) => parseInt(my.label_id)).includes(val))
+
+        if (selection) {
+            for (var label of selection) {
+                const newLabel = await Mark.create({
+                    product_id: product,
+                    label_id: label
+                })
+                created.push(newLabel)
+            }
+        }
+        if (areNotInList) {
+            const destroy = await Mark.destroy({
+                where: {
+                    product_id: req.body.product,
+                    label_id: areNotInList.map((x) => x.label_id)
+                }
+            })
+            deleted.push(destroy)
+        }
+
+        res.json({
+            status: 'success',
+            message: 'mark a product',
+            data: [
+                created,
+                deleted
+            ]
+        })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal server error'
+        })
+    }
+}
+
+module.exports = {
+    All,
+    One,
+    Create,
+    Destroy,
+    Update,
+    MarkProduct
+}
