@@ -8,12 +8,30 @@ const Op = db.Sequelize.Op
 
 async function All(req, res) {
     try {
-        const produts = Produtcs.findAll({})
+        const produts = await Produtcs.findAll({
+            limit: req.body.limit,
+            offset: req.body.offset,
+            include: [
+                {
+                    model: Owner,
+                    as: 'productToOwner',
+                    include: [
+                        {
+                            model: Store,
+                            as: 'ownerToStore'
+                        }
+                    ]
+                }
+            ]
+        })
+
+        const total_products = await Produtcs.count()
 
         res.json({
             status: 'success',
             message: 'Get all produts',
-            data: produts
+            data: produts,
+            total_products
         })
     } catch (err) {
         res.status(500).json({
@@ -24,6 +42,39 @@ async function All(req, res) {
 }
 
 async function One(req, res) {
+    try {
+        const product = await Produtcs.findOne({
+            where: {
+                id: req.body.id
+            },
+            include: [
+                {
+                    model: Owner,
+                    as: 'productToOwner',
+                    include: [
+                        {
+                            model: Store,
+                            as: 'ownerToStore'
+                        }
+                    ]
+                }
+            ]
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Get a product',
+            data: product
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        })
+    }
+}
+
+async function Find(req, res) {
     try {
         const {product, category = null} = req.body
 
@@ -217,6 +268,7 @@ async function MarkProduct(req, res) {
 module.exports = {
     All,
     One,
+    Find,
     Create,
     Destroy,
     Update,

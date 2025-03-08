@@ -19,9 +19,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'product_id',
         as: 'trolleyToProduct'
       })
-      Trolley.hasMany(models.Transaction, {
-        foreignKey: 'trolley_id',
-        as: 'trolleyToTransaction'
+      Trolley.belongsToMany(models.Transaction, {
+        through: models.ItemsTransaction,
+        as: 'trolleyTotransaction',
+        foreignKey: 'trolley_id'
       })
     }
   }

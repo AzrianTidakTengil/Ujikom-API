@@ -15,9 +15,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_id',
         as: 'transactionToUser'
       })
-      Transaction.hasOne(models.ItemsTransaction, {
-        foreignKey: 'transaction_id',
-        as: 'transactionToTrolley'
+      Transaction.belongsToMany(models.Trolley, {
+        through: models.ItemsTransaction,
+        as: 'transactionToTrolley',
+        foreignKey: 'transaction_id'
       })
       Transaction.belongsTo(models.Delivery, {
         foreignKey: 'shipment_id',
@@ -25,16 +26,17 @@ module.exports = (sequelize, DataTypes) => {
       })
       Transaction.belongsTo(models.Payment, {
         foreignKey:'payment_id',
-        as: 'transactontToPayment'
+        as: 'transactionToPayment'
       })
     }
   }
   Transaction.init({
     user_id: DataTypes.STRING,
-    trolley_id: DataTypes.STRING,
     shipment_id: DataTypes.STRING,
     payment_id: DataTypes.STRING,
-    total_price: DataTypes.STRING
+    total_price: DataTypes.STRING,
+    payment_type: DataTypes.STRING,
+    subtype: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Transaction',

@@ -1,7 +1,48 @@
 const Trolley = require('../models').Trolley
 const Products = require('../models').Produtcs
+const Owner = require('../models').OwnerProduct
+const Store = require('../models').Store
 const db = require('../models/index')
 const Op = db.Sequelize.Op
+
+async function All(req, res) {
+    try {
+        const trolley = await Trolley.findAll({
+            where: {
+                id: req.body.id
+            },
+            include: [
+                {
+                    model: Products,
+                    as: 'trolleyToProduct',
+                    include: [
+                        {
+                            model: Owner,
+                            as: 'productToOwner',
+                            include: [
+                                {
+                                    model: Store,
+                                    as: 'ownerToStore'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        })
+
+        res.json({
+            status: 'success',
+            message: 'get a some trolley',
+            data: trolley
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        })
+    }
+}
 
 async function List(req, res) {
     try {
@@ -59,7 +100,6 @@ async function Update(req, res) {
     try {
         const trolley = await Trolley.update({
             user_id: req.userID,
-            product_id: req.body.product,
             items: req.body.items
         }, {
             where: {
@@ -100,6 +140,7 @@ async function Destroy(req, res) {
 }
 
 module.exports = {
+    All,
     List,
     Create,
     Update,
