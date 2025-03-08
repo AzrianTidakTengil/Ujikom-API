@@ -7,22 +7,29 @@ module.exports = function (app) {
     app.post('/api/auth/signup', [middleware.auth.checkEmailOrTel], controllers.auth.SignUp)
     app.post('/api/auth/signin', controllers.auth.SignIn)
 
+    // user
+    app.get('/api/user', [middleware.verify.verifyToken], controllers.user.GetOne)
+
     // produtcs
-    app.get('/api/items', [middleware.verify.verifyToken], controllers.produtcs.All)
-    app.get('/api/item', [middleware.verify.verifyToken], controllers.produtcs.One)
+    app.post('/api/items', [], controllers.produtcs.All)
+    app.post('/api/item', [], controllers.produtcs.One)
+    app.post('/api/item/find', [], controllers.produtcs.Find)
     app.post('/api/item/create', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.Create)
     app.put('/api/item/update', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.Update)
     app.delete('/api/item/delete', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.Destroy)
     app.put('/api/item/mark', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.MarkProduct)
 
     // trolley
+    app.post('/api/trolley/find', [middleware.verify.verifyToken], controllers.trolley.All)
     app.get('/api/trolley', [middleware.verify.verifyToken], controllers.trolley.List)
     app.post('/api/trolley/create', [middleware.verify.verifyToken], controllers.trolley.Create)
     app.put('/api/trolley/update', [middleware.verify.verifyToken], controllers.trolley.Update)
     app.delete('/api/trolley/delete', [middleware.verify.verifyToken], controllers.trolley.Destroy)
 
     // transaction
-    app.get('/api/transaction', [middleware.verify.verifyToken], controllers.transaction.List)
+    app.post('/api/transaction', [middleware.verify.verifyToken], controllers.transaction.One)
+    app.post('/api/transactions', [middleware.verify.verifyToken], controllers.transaction.List)
+    app.post('/api/transactions/find', [middleware.verify.verifyToken], controllers.transaction.Find)
     app.post('/api/transaction/create', [middleware.verify.verifyToken], controllers.transaction.Create)
     app.delete('/api/transaction/delete', [middleware.verify.verifyToken], controllers.transaction.Destroy)
 
@@ -48,6 +55,14 @@ module.exports = function (app) {
     app.get('/api/delivery', [middleware.verify.verifyToken], controllers.delivery.List)
     app.post('/api/delivey/create', [middleware.verify.verifyToken, middleware.role.IsAdmin], controllers.delivery.Create),
     app.delete('/api/delivery/delete', [middleware.verify.verifyToken, middleware.role.IsAdmin], controllers.delivery.Destroy)
+
+    //address
+    app.get('/api/user/addresses', [middleware.verify.verifyToken], controllers.address.All)
+    app.post('/api/user/address', [middleware.verify.verifyToken], controllers.address.One)
+    app.post('/api/user/address/find', [middleware.verify.verifyToken], controllers.address.Find)
+    app.post('/api/user/address/create', [middleware.verify.verifyToken], controllers.address.Create)
+    app.put('/api/user/address/update', [middleware.verify.verifyToken], controllers.address.Update)
+    app.delete('/api/user/address/delete', [middleware.verify.verifyToken], controllers.address.Destroy)
 
     // for example
     app.post('/api/auth/hasToken', controllers.auth.SignIn)

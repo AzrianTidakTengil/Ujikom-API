@@ -6,6 +6,8 @@ const labelStore = require('../controllers/labelStore')
 const delivery = require('../controllers/delivery')
 const trolley = require('../controllers/trolley')
 const transaction = require('../controllers/transaction')
+const user = require('../controllers/user')
+const address = require("../controllers/address")
 
 module.exports = {
     auth,
@@ -15,5 +17,7 @@ module.exports = {
     labelStore,
     delivery,
     trolley,
-    transaction
+    transaction,
+    user,
+    address
 }

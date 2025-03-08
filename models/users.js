@@ -27,6 +27,14 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_id',
         as: 'userToTransaction'
       })
+      Users.hasMany(models.Address, {
+        foreignKey: 'user_id',
+        as: 'userToAddress'
+      })
+      Users.hasOne(models.AddressUser, {
+        foreignKey: 'user_id',
+        as: 'userHaveAddress'
+      })
     }
   }
   Users.init({

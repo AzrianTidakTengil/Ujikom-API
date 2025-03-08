@@ -79,12 +79,12 @@ async function SignIn(req, res, next) {
                     role: validate.role_id,
                     store: store
                 }, config.secretKey, {
-                    expiresIn: 86400
+                    expiresIn: 7*24*60*60
                 })
                 res.json({
                     status:'success',
                     message: `Succes to login as ${validate.username}`,
-                    accessToken: `UjiKom ${token}`
+                    accessToken: `${token}`
                 })
             }
         }
