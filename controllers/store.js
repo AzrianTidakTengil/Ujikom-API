@@ -2,7 +2,37 @@ require('dotenv').config()
 const config = require('../config/configRoles.js')
 const jwt = require('jsonwebtoken')
 const Store = require('../models').Store
+const User = require('../models').Users
 
+
+async function BySeller(req, res) {
+    try {
+        const shop = await User.findOne({
+            attributes: [],
+            where: {
+                id: req.userID
+            },
+            include: [
+                {
+                    attributes: ['name', 'description', 'address', 'postcode'],
+                    model: Store,
+                    as: 'userToStore'
+                }
+            ]
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Information Shop',
+            data: shop.userToStore
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error: selle not found'
+        })
+    }
+}
 
 async function Add(req, res) {
     try {
@@ -65,5 +95,6 @@ async function Update(req, res) {
 
 module.exports = {
     Add,
-    Update
+    Update,
+    BySeller
 }
