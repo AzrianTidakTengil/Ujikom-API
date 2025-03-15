@@ -167,9 +167,54 @@ async function Balance(req, res) {
     }
 }
 
+async function InTrolley(req, res) {
+    try {
+        const product = await Products.findAll({
+            include: [
+                {
+                    model: Trolley,
+                    as: 'productToTrolley'
+                },
+                {
+                    attributes: [],
+                    model: Owner,
+                    as: 'productToOwner',
+                    include: [
+                        {
+                            attributes: ['name', 'description', 'address', 'postcode'],
+                            model: Store,
+                            as: 'ownerToStore',
+                            where: {
+                                user_id: req.userID
+                            }
+                        }
+                    ]
+                }
+            ]
+        })
+
+        const countInTrolley = product.reduce((acc, val) => acc + val.productToTrolley.length, 0)
+
+        res.json({
+            status: 'success',
+            message: 'Product in trolley',
+            data: {
+                count: countInTrolley,
+                product
+            }
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        })
+    }
+}
+
 module.exports = {
     Add,
     Update,
     BySeller,
-    Balance
+    Balance,
+    InTrolley
 }
