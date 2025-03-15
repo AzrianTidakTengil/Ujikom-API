@@ -1,9 +1,16 @@
 require('dotenv').config()
+const { Status } = require('../config/checkingorderstatus.js')
 const config = require('../config/configRoles.js')
 const jwt = require('jsonwebtoken')
 const Store = require('../models').Store
 const User = require('../models').Users
-
+const Payment = require('../models').Payment
+const Transaction = require('../models').Transaction
+const Trolley = require('../models').Trolley
+const Products = require('../models').Produtcs
+const db = require('../models/index')
+const Op = db.Sequelize.Op
+const Owner = require('../models').OwnerProduct
 
 async function BySeller(req, res) {
     try {
@@ -93,8 +100,76 @@ async function Update(req, res) {
     }
 }
 
+async function Balance(req, res) {
+    try {
+        Status()
+        const transaction  = await Transaction.findAll({
+            attributes: ['id', 'updatedAt'],
+            include: [
+                {
+                    attributes: ['id', 'order_id', 'payment_method', 'subtype', 'status'],
+                    model: Payment,
+                    as: 'transactionToPayment',
+                    where: {
+                        status: 'settlement'
+                    }
+                },
+                {
+                    attributes: ['product_id', 'items'],
+                    model: Trolley,
+                    as: 'transactionToTrolley',
+                    include: [
+                        {
+                            attributes: ['name', 'price'],
+                            model: Products,
+                            as: 'trolleyToProduct',
+                            include: [
+                                {
+                                    attributes: [],
+                                    model: Owner,
+                                    as: 'productToOwner',
+                                    include: [
+                                        {
+                                            attributes: ['name', 'description', 'address', 'postcode'],
+                                            model: Store,
+                                            as: 'ownerToStore',
+                                            where: {
+                                                user_id: req.userID
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    through: {
+                        attributes: [],
+                    },
+                }
+            ]
+        })
+
+        const totalBalance = transaction.reduce((acc, order) => acc + (order.transactionToTrolley.reduce((a, val) => a + (val.items * val.trolleyToProduct.price), 0)), 0)
+
+        res.json({
+            status: 'success',
+            message: 'Balance shop information',
+            data: {
+                balance: totalBalance,
+                transaction
+            }
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        })
+    }
+}
+
 module.exports = {
     Add,
     Update,
-    BySeller
+    BySeller,
+    Balance
 }
