@@ -211,10 +211,72 @@ async function InTrolley(req, res) {
     }
 }
 
+async function Order(req, res) {
+    try {
+        const transaction = await Transaction.findAll({
+            attributes: ['id', 'updatedAt'],
+            include: [
+                {
+                    attributes: ['id', 'order_id', 'payment_method', 'subtype', 'status'],
+                    model: Payment,
+                    as: 'transactionToPayment',
+                    where: {
+                        status: 'settlement'
+                    }
+                },
+                {
+                    attributes: ['product_id', 'items'],
+                    model: Trolley,
+                    as: 'transactionToTrolley',
+                    include: [
+                        {
+                            attributes: ['name', 'price'],
+                            model: Products,
+                            as: 'trolleyToProduct',
+                            include: [
+                                {
+                                    attributes: [],
+                                    model: Owner,
+                                    as: 'productToOwner',
+                                    include: [
+                                        {
+                                            attributes: ['name', 'description', 'address', 'postcode'],
+                                            model: Store,
+                                            as: 'ownerToStore',
+                                            where: {
+                                                user_id: req.userID
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    through: {
+                        attributes: [],
+                    },
+                }
+            ]
+        })
+
+        res.json({
+            status: 'success',
+            message: 'List Order Product',
+            data: transaction
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
 module.exports = {
     Add,
     Update,
     BySeller,
     Balance,
-    InTrolley
+    InTrolley,
+    Order
 }
