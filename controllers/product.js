@@ -5,6 +5,9 @@ const Store = require('../models').Store
 const Label = require('../models').Labels
 const db = require('../models/index')
 const Op = db.Sequelize.Op
+const Trolley = require('../models').Trolley
+const Transaction = require('../models').Transaction
+
 
 async function All(req, res) {
     try {
@@ -265,6 +268,32 @@ async function MarkProduct(req, res) {
     }
 }
 
+async function Popular(req, res) {
+    try {
+        const topProduct = await Produtcs.findAll({
+            limit: 10,
+            attributes: ['name'],
+            include: [
+                {
+                    model: Trolley,
+                    as: 'productToTrolley',
+                }
+            ]
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Product popular',
+            data: topProduct
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error: cannot find popular'
+        })
+    }
+}
+
 module.exports = {
     All,
     One,
@@ -272,5 +301,6 @@ module.exports = {
     Create,
     Destroy,
     Update,
-    MarkProduct
+    MarkProduct,
+    Popular
 }
