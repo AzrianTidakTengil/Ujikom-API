@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'store_id',
         as: 'storeToList'
       })
+      Store.hasOne(models.WorkOperation, {
+        foreignKey: 'store_id',
+        as: 'storeToOperation'
+      })
     }
   }
   Store.init({
