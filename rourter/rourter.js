@@ -55,6 +55,7 @@ module.exports = function (app) {
     app.put('/api/store/label/update', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.labelStore.MyStore.update)
     app.get('/api/store/balance', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.Balance)
     app.get('/api/store/introlley', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.InTrolley)
+    app.get('/api/store/order', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.Order)
 
     // delivery
     app.get('/api/delivery', [middleware.verify.verifyToken], controllers.delivery.List)
