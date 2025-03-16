@@ -56,6 +56,8 @@ module.exports = function (app) {
     app.get('/api/store/balance', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.Balance)
     app.get('/api/store/introlley', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.InTrolley)
     app.get('/api/store/order', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.Order)
+    app.get('/api/store/operation', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.Operation)
+    app.put('/api/seller/update', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.SellerUpdate)
 
     // delivery
     app.get('/api/delivery', [middleware.verify.verifyToken], controllers.delivery.List)
