@@ -79,15 +79,15 @@ async function Add(req, res) {
 async function Update(req, res) {
     try {
         const updateStore = await Store.update({
-            user_id: req.userID,
+            // user_id: req.userID,
             name: req.body.name,
             description: req.body.description,
-            address: req.body.address,
-            postcode: req.body.postcode,
-            category_id: 0,
+            // address: req.body.address,
+            // postcode: req.body.postcode,
+            // category_id: 0,
         }, {
             where: {
-                id: req.body.id
+                user_id: req.userID
             }
         })
         res.json({
