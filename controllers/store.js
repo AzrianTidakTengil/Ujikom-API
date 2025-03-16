@@ -11,6 +11,8 @@ const Products = require('../models').Produtcs
 const db = require('../models/index')
 const Op = db.Sequelize.Op
 const Owner = require('../models').OwnerProduct
+const WorkOperation = require('../models').WorkOperation
+const dayjs = require('dayjs')
 
 async function BySeller(req, res) {
     try {
@@ -272,11 +274,55 @@ async function Order(req, res) {
     }
 }
 
+async function Operation(req, res) {
+    try {
+        const [operation, isCreate] = await WorkOperation.findOrCreate({
+            where: {
+                store_id: req.userID
+            },
+            default: {
+                store_id: req.userID,
+                monday: `${dayjs().hour(8).minute(0)}-${dayjs().hour(17).minute(0)}`,
+                tuesday: `${dayjs().hour(8).minute(0)}-${dayjs().hour(17).minute(0)}`,
+                weknesday: `${dayjs().hour(8).minute(0)}-${dayjs().hour(17).minute(0)}`,
+                thursday: `${dayjs().hour(8).minute(0)}-${dayjs().hour(17).minute(0)}`,
+                friday: `${dayjs().hour(8).minute(0)}-${dayjs().hour(17).minute(0)}`,
+                saturday: `${dayjs().hour(8).minute(0)}-${dayjs().hour(15).minute(0)}`,
+                sunday: `holiday`,
+            }
+        })
+
+        if (isCreate) {
+            operation.update({
+                monday: `${dayjs().hour(8).minute(0).format('HH:mm')}-${dayjs().hour(17).minute(0).format('HH:mm')}`,
+                tuesday: `${dayjs().hour(8).minute(0).format('HH:mm')}-${dayjs().hour(17).minute(0).format('HH:mm')}`,
+                weknesday: `${dayjs().hour(8).minute(0).format('HH:mm')}-${dayjs().hour(17).minute(0).format('HH:mm')}`,
+                thursday: `${dayjs().hour(8).minute(0).format('HH:mm')}-${dayjs().hour(17).minute(0).format('HH:mm')}`,
+                friday: `${dayjs().hour(8).minute(0).format('HH:mm')}-${dayjs().hour(17).minute(0).format('HH:mm')}`,
+                saturday: `${dayjs().hour(8).minute(0).format('HH:mm')}-${dayjs().hour(15).minute(0).format('HH:mm')}`,
+                sunday: `holiday`,
+            })
+        }
+
+        res.json({
+            status: 'success',
+            message: 'hour work operation shop',
+            data: operation
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
 module.exports = {
     Add,
     Update,
     BySeller,
     Balance,
     InTrolley,
-    Order
+    Order,
+    Operation,
 }
