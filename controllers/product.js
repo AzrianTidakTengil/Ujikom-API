@@ -294,6 +294,41 @@ async function Popular(req, res) {
     }
 }
 
+async function MyStore(req, res) {
+    try {
+        const product = await Produtcs.findAll({
+            limit: req.body.limit,
+            offset: req.body.offset,
+            include: [
+                {
+                    model: Owner,
+                    as: 'productToOwner',
+                    include: [
+                        {
+                            model: Store,
+                            as: 'ownerToStore',
+                            where: {
+                                user_id: req.userID
+                            }
+                        }
+                    ]
+                }
+            ]
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Product in your store',
+            data: product
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
 module.exports = {
     All,
     One,
@@ -302,5 +337,6 @@ module.exports = {
     Destroy,
     Update,
     MarkProduct,
-    Popular
+    Popular,
+    MyStore
 }
