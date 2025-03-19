@@ -3,6 +3,7 @@ const Owner = require('../models').OwnerProduct
 const Mark = require('../models').LabelProduct
 const Store = require('../models').Store
 const Label = require('../models').Labels
+const { Sequelize } = require('sequelize')
 const db = require('../models/index')
 const Op = db.Sequelize.Op
 const Trolley = require('../models').Trolley
@@ -277,6 +278,16 @@ async function Popular(req, res) {
                 {
                     model: Trolley,
                     as: 'productToTrolley',
+                    where: {
+
+                    }
+                },
+                {
+                    model: Label,
+                    as: 'productToLabel',
+                    through: {
+                        attributes: [],
+                    },
                 }
             ]
         })
@@ -316,10 +327,31 @@ async function MyStore(req, res) {
             ]
         })
 
+        const length_product = await Produtcs.count({
+            include: [
+                {
+                    model: Owner,
+                    as: 'productToOwner',
+                    include: [
+                        {
+                            model: Store,
+                            as: 'ownerToStore',
+                            where: {
+                                user_id: req.userID
+                            }
+                        }
+                    ]
+                }
+            ]
+        })
+
         res.json({
             status: 'success',
             message: 'Product in your store',
-            data: product
+            data: {
+                length_product,
+                product
+            }
         })
     } catch (err) {
         res.status(500).json({
