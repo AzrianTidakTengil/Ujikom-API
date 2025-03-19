@@ -1,7 +1,7 @@
 const Transaction = require('../models').Transaction
 const Payment = require('../models').Payment
 const Products = require('../models').Produtcs
-// const Delivery = require('../models').Delivery
+const Delivery = require('../models').Delivery
 const Shipment = require('../models').Shipment
 const Trolley = require('../models').Trolley
 const LabelShipment = require('../models').LabelShipment
@@ -10,6 +10,7 @@ const Users = require('../models').Users
 const midtransClient = require('midtrans-client') 
 const db = require('../models/index')
 const Op = db.Sequelize.Op
+const AddressUser = require('../models').AddressUser
 
 async function One(req, res) {
     try {
@@ -141,6 +142,7 @@ async function Create(req, res) {
     try {
         const {
             label,
+            delivery_type,
             items,
             coupon_payment,
             coupon_fare,
@@ -150,17 +152,24 @@ async function Create(req, res) {
             store = ''
         } = req.body
 
-        const shipment = await Shipment.create({
-            label_id: label,
-            delivery_id: '0',
-            start_date: new Date(),
-            end_date: new Date(new Date().getDate() + 3)
+        const addressUser = await AddressUser.findOne({
+            where: {
+                user_id: req.userID
+            }
         })
 
-        const fare = await LabelShipment.findOne({
-            where: {
-                id: label
-            }
+        const delivery = await Delivery.create({
+            label_id: label,
+            user_id: req.userID,
+            type_label: delivery_type,
+            detail: addressUser.selected
+        })
+
+        const shipment = await Shipment.create({
+            label_id: label,
+            delivery_id: delivery.id,
+            start_date: new Date(),
+            end_date: new Date().setDate(new Date().getDate() + 3)
         })
 
         const user = await Users.findOne({
@@ -377,6 +386,7 @@ async function Create(req, res) {
                         data: {
                             trolley,
                             transaction,
+                            delivery
                         }
                     })
                 })
