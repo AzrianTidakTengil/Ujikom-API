@@ -20,9 +20,9 @@ module.exports = (sequelize, DataTypes) => {
         as: 'transactionToTrolley',
         foreignKey: 'transaction_id'
       })
-      Transaction.belongsTo(models.Delivery, {
+      Transaction.belongsTo(models.Shipment, {
         foreignKey: 'shipment_id',
-        as: 'transactionToDelivery'
+        as: 'transactionToShipment'
       })
       Transaction.belongsTo(models.Payment, {
         foreignKey:'payment_id',
