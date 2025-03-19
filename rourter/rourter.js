@@ -19,7 +19,7 @@ module.exports = function (app) {
     app.delete('/api/item/delete', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.Destroy)
     app.put('/api/item/mark', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.MarkProduct)
     app.get('/api/item/popular', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.Popular)
-    app.get('/api/item/store', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.MyStore)
+    app.post('/api/item/store', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.MyStore)
 
     // trolley
     app.post('/api/trolley/find', [middleware.verify.verifyToken], controllers.trolley.All)
@@ -58,6 +58,9 @@ module.exports = function (app) {
     app.get('/api/store/order', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.Order)
     app.get('/api/store/operation', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.Operation)
     app.put('/api/store/address', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.Address)
+    app.post('/api/store/order', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.Order)
+    app.get('/api/store/operation', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.Operation)
+    // app.put('/api/store/address', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.Address)
 
     // delivery
     app.get('/api/delivery', [middleware.verify.verifyToken], controllers.delivery.List)
