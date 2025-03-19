@@ -216,6 +216,8 @@ async function InTrolley(req, res) {
 async function Order(req, res) {
     try {
         const transaction = await Transaction.findAll({
+            limit: req.body.limit,
+            offset: req.body.offset,
             attributes: ['id', 'updatedAt'],
             include: [
                 {
@@ -261,10 +263,53 @@ async function Order(req, res) {
             ]
         })
 
+        const length_order_process = await Transaction.count({
+            include: [
+                {
+                    model: Payment,
+                    as: 'transactionToPayment',
+                    where: {
+                        status: 'settlement'
+                    }
+                },
+                {
+                    model: Trolley,
+                    as: 'transactionToTrolley',
+                    include: [
+                        {
+                            model: Products,
+                            as: 'trolleyToProduct',
+                            include: [
+                                {
+                                    model: Owner,
+                                    as: 'productToOwner',
+                                    include: [
+                                        {
+                                            model: Store,
+                                            as: 'ownerToStore',
+                                            where: {
+                                                user_id: req.userID
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    through: {
+                        attributes: [],
+                    },
+                }
+            ]
+        })
+
         res.json({
             status: 'success',
             message: 'List Order Product',
-            data: transaction
+            data: {
+                length_order_process,
+                transaction
+            }
         })
     } catch (err) {
         res.status(500).json({
