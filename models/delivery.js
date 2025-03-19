@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
         as: 'deliveryToUser'
       })
       Delivery.belongsTo(models.LabelShipment, {
-        foreignKey: 'type_id',
+        foreignKey: 'type_label',
         as: 'deliveryToType'
       })
       Delivery.hasOne(models.Transaction, {
@@ -29,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
       Delivery.belongsTo(models.Address, {
         foreignKey: 'detail',
         as: 'deliveryToAddress'
+      })
+      Delivery.hasOne(models.Shipment, {
+        foreignKey: 'delivery_id',
+        as: 'deliveryToShipment'
       })
     }
   }
