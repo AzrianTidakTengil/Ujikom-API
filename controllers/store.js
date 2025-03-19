@@ -13,6 +13,9 @@ const Op = db.Sequelize.Op
 const Owner = require('../models').OwnerProduct
 const WorkOperation = require('../models').WorkOperation
 const dayjs = require('dayjs')
+const Delivery = require('../models').Delivery
+const Shipment = require('../models').Shipment
+const Address = require('../models').Address
 
 async function BySeller(req, res) {
     try {
@@ -215,11 +218,42 @@ async function InTrolley(req, res) {
 
 async function Order(req, res) {
     try {
+        Status()
         const transaction = await Transaction.findAll({
             limit: req.body.limit,
             offset: req.body.offset,
             attributes: ['id', 'updatedAt'],
+            order: [
+                ['id', 'DESC']
+            ],
             include: [
+                {
+                    attributes: ['start_date', 'end_date', 'delivery_id'],
+                    model: Shipment,
+                    as: 'transactionToShipment',
+                    where: {
+                        start_date: {
+                            [Op.lte]: new Date()
+                        },
+                        end_date: {
+                            [Op.gte] : new Date()
+                        }
+                    },
+                    include: [
+                        {
+                            attributes: [],
+                            model: Delivery,
+                            as: 'shipmentToDelivery',
+                            include: [
+                                {
+                                    attributes: ['name', 'receiver', 'address', 'postal_code', 'telephone', 'country', 'province', 'city', 'district', 'notes', 'latitude', 'longtitude'],
+                                    model: Address,
+                                    as: 'deliveryToAddress'
+                                }
+                            ]
+                        }
+                    ]
+                },
                 {
                     attributes: ['id', 'order_id', 'payment_method', 'subtype', 'status'],
                     model: Payment,
@@ -266,6 +300,34 @@ async function Order(req, res) {
         const length_order_process = await Transaction.count({
             include: [
                 {
+                    attributes: ['start_date', 'end_date', 'delivery_id'],
+                    model: Shipment,
+                    as: 'transactionToShipment',
+                    where: {
+                        start_date: {
+                            [Op.lte]: new Date()
+                        },
+                        end_date: {
+                            [Op.gte] : new Date()
+                        }
+                    },
+                    include: [
+                        {
+                            attributes: [],
+                            model: Delivery,
+                            as: 'shipmentToDelivery',
+                            include: [
+                                {
+                                    attributes: ['name', 'receiver', 'address', 'postal_code', 'telephone', 'country', 'province', 'city', 'district', 'notes', 'latitude', 'longtitude'],
+                                    model: Address,
+                                    as: 'deliveryToAddress'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    attributes: ['id', 'order_id', 'payment_method', 'subtype', 'status'],
                     model: Payment,
                     as: 'transactionToPayment',
                     where: {
@@ -273,18 +335,22 @@ async function Order(req, res) {
                     }
                 },
                 {
+                    attributes: ['product_id', 'items'],
                     model: Trolley,
                     as: 'transactionToTrolley',
                     include: [
                         {
+                            attributes: ['name', 'price'],
                             model: Products,
                             as: 'trolleyToProduct',
                             include: [
                                 {
+                                    attributes: [],
                                     model: Owner,
                                     as: 'productToOwner',
                                     include: [
                                         {
+                                            attributes: ['name', 'description', 'address', 'postcode'],
                                             model: Store,
                                             as: 'ownerToStore',
                                             where: {
@@ -312,9 +378,10 @@ async function Order(req, res) {
             }
         })
     } catch (err) {
+        console.error(err)
         res.status(500).json({
             status: 'error',
-            message: 'Server Internal Error'
+            message: 'Internal Server Error: ordering'
         })
     }
 }
