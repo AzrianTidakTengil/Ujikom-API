@@ -241,7 +241,7 @@ async function Order(req, res) {
                     },
                     include: [
                         {
-                            attributes: [],
+                            attributes: ['detail'],
                             model: Delivery,
                             as: 'shipmentToDelivery',
                             include: [
