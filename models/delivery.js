@@ -10,12 +10,33 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Delivery.belongsTo(models.LabelDelivery, {
+        foreignKey: 'label_id',
+        as: 'deliveryToLabel'
+      })
+      Delivery.belongsTo(models.Users, {
+        foreignKey: 'user_id',
+        as: 'deliveryToUser'
+      })
+      Delivery.belongsTo(models.LabelShipment, {
+        foreignKey: 'type_id',
+        as: 'deliveryToType'
+      })
+      Delivery.hasOne(models.Transaction, {
+        foreignKey: 'shipment_id',
+        as: 'deliveryToTransactioin'
+      })
+      Delivery.belongsTo(models.Address, {
+        foreignKey: 'detail',
+        as: 'deliveryToAddress'
+      })
     }
   }
   Delivery.init({
-    name: DataTypes.STRING,
-    label_id: DataTypes.STRING
+    label_id: DataTypes.STRING,
+    user_id: DataTypes.STRING,
+    type_label: DataTypes.STRING,
+    detail: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Delivery',
