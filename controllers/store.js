@@ -429,6 +429,30 @@ async function Operation(req, res) {
     }
 }
 
+async function HandleOrderStatus(req, res) {
+    try {
+        const {id, status} = req.body
+
+        const order = await Payment.update({
+            status: status === 'approved' ? 'onSeller' : 'rejectedBySeller'
+        }, {
+            where: {
+                order_id: `id-payment-${id}`
+            }
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Success changed status ordering',
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
 module.exports = {
     Add,
     Update,
@@ -437,4 +461,5 @@ module.exports = {
     InTrolley,
     Order,
     Operation,
+    HandleOrderStatus
 }
