@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'default',
         as: 'defaultAddressUser'
       })
+      Address.hasMany(models.Delivery, {
+        foreignKey: 'detail',
+        as: 'addressToDelivery'
+      })
     }
   }
   Address.init({
