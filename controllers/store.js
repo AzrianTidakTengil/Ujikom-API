@@ -259,7 +259,7 @@ async function Order(req, res) {
                     model: Payment,
                     as: 'transactionToPayment',
                     where: {
-                        status: 'settlement'
+                        status: req.body.status
                     }
                 },
                 {
@@ -331,7 +331,7 @@ async function Order(req, res) {
                     model: Payment,
                     as: 'transactionToPayment',
                     where: {
-                        status: 'settlement'
+                        status: req.body.status
                     }
                 },
                 {
