@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'store_id',
         as: 'storeToOperation'
       })
+      Store.belongsTo(models.AddressShop, {
+        foreignKey: 'address',
+        as: 'shopToAddress'
+      })
     }
   }
   Store.init({
@@ -34,7 +38,6 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     description: DataTypes.TEXT,
     address: DataTypes.STRING,
-    postcode: DataTypes.STRING,
     category_id: DataTypes.STRING
   }, {
     sequelize,
