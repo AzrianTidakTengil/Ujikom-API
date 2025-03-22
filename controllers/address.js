@@ -1,6 +1,8 @@
 const Users = require('../models').Users
 const Addresses = require('../models').Address
 const HasAddress = require('../models').AddressUser
+const Store = require('../models').Store
+const AddressShop = require('../models').AddressShop
 const db = require('../models/index')
 const Op = db.Sequelize.Op
 
@@ -284,6 +286,91 @@ async function addressUser(req, res) {
     }
 }
 
+class Shop {
+    static async Get(req, res) {
+        try {
+            const address = await Store.findOne({
+                attributes: ['name'],
+                where: {
+                    user_id: req.userID
+                },
+                include: [
+                    {
+                        model: AddressShop,
+                        as: 'shopToAddress'
+                    }
+                ]
+            })
+    
+            res.json({
+                status: 'success',
+                message: 'Get Information Address Shop',
+                data: address
+            })
+        } catch (err) {
+            res.status(500).json({
+                status: 'error',
+                message: 'Internal Server Error: address shop'
+            })
+        }
+    }
+
+    static async CreateOrUpdate(req, res) {
+        try {
+            const {name, receiver, address, postal_code, telephone, country, province, city, district, notes, latitude, longtitude} = req.body
+
+            const shop = await Store.findOne({
+                where: {
+                    user_id: req.userID
+                }
+            })
+
+            if (shop.address.length == 0 || !shop.address || shop.address == 0) {
+                const addressShop = await AddressShop.create({
+                    address: address,
+                    district: district,
+                    city: city,
+                    province: province,
+                    country: country,
+                    postal_code: postal_code,
+                    latitude: latitude,
+                    longtitude: longtitude
+                })
+
+                shop.update({
+                    address: addressShop.id
+                })
+            } else {
+                const addressShop = await AddressShop.update({
+                    address: address,
+                    district: district,
+                    city: city,
+                    province: province,
+                    country: country,
+                    postal_code: postal_code,
+                    latitude: latitude,
+                    longtitude: longtitude
+                }, {
+                    where: {
+                        id: shop.address
+                    }
+                })
+            }
+
+            res.json({
+                status: 'success',
+                message: 'create or update information an address shop',
+            })
+        } catch (err) {
+            console.error(err)
+            res.status(500).json({
+                status: 'error',
+                message: 'Internal Server Error: create or update address shop'
+            })
+        }
+    }
+}
+
 module.exports = {
     All,
     One,
@@ -291,5 +378,6 @@ module.exports = {
     Create,
     Update,
     Destroy,
-    addressUser
+    addressUser,
+    Shop
 }
