@@ -71,6 +71,8 @@ module.exports = function (app) {
     app.post('/api/user/address/create', [middleware.verify.verifyToken], controllers.address.Create)
     app.put('/api/user/address/update', [middleware.verify.verifyToken], controllers.address.Update)
     app.delete('/api/user/address/delete', [middleware.verify.verifyToken], controllers.address.Destroy)
+    app.get('/api/store/address', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.address.Shop.Get)
+    app.post('/api/store/address/edit', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.address.Shop.CreateOrUpdate)
 
     // for example
     app.post('/api/auth/hasToken', controllers.auth.SignIn)
