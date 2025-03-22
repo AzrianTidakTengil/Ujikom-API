@@ -9,6 +9,7 @@ const Store = require('../models').Store
 const Op = db.Sequelize.Op
 const CryptoJS = require('crypto-js')
 const config = require('../config/configRoles.js')
+const AddressShop = require('../models').AddressShop
 
 async function SignUp(req, res, next) {
     try {
@@ -31,8 +32,7 @@ async function SignUp(req, res, next) {
                 user_id: newUser.id,
                 name: req.body.name,
                 description: req.body.description,
-                address: req.body.address,
-                postcode: req.body.postcode,
+                address: 0,
                 category_id: 0,
             })
         }
