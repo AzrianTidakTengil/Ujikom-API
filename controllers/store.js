@@ -26,7 +26,7 @@ async function BySeller(req, res) {
             },
             include: [
                 {
-                    attributes: ['name', 'description', 'address', 'postcode'],
+                    attributes: ['name', 'description'],
                     model: Store,
                     as: 'userToStore'
                 }
