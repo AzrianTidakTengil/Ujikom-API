@@ -346,10 +346,10 @@ class Shop {
                     district: district,
                     city: city,
                     province: province,
-                    country: country,
-                    postal_code: postal_code,
-                    latitude: latitude,
-                    longtitude: longtitude
+                    // country: country,
+                    // postal_code: postal_code,
+                    // latitude: latitude,
+                    // longtitude: longtitude
                 }, {
                     where: {
                         id: shop.address
