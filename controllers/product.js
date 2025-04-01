@@ -8,6 +8,7 @@ const db = require('../models/index')
 const Op = db.Sequelize.Op
 const Trolley = require('../models').Trolley
 const Transaction = require('../models').Transaction
+const ProductsImage = require('../models').ProductsImage
 
 
 async function All(req, res) {
@@ -132,6 +133,20 @@ async function Create(req, res) {
             price: req.body.price,
             stock: req.body.stock
         })
+
+        for (var image of req.body.images) {
+            const uploadResponse = await cloudinary.v2.uploader.upload(image, {
+                folder: "products",
+                transformation: [
+                    { quality: "auto:low" }
+                ]
+            })
+            
+            const images = await ProductsImage.create({
+                product_id: newProduct.id,
+                public_id: uploadResponse.public_id
+            })
+        }
 
         const signProduct = await Owner.create({
             store_id: req.body.store_id,
