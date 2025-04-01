@@ -7,8 +7,8 @@ const app = express()
 const port = 3001
 
 // app.use(cors())
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false, limit: '5mb' }))
+app.use(bodyParser.json({limit: '5mb'}))
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
