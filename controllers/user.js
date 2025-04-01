@@ -3,7 +3,7 @@ const Users = require('../models').Users
 async function GetOne(req, res) {
     try {
         const user = await Users.findOne({
-            attributes: ['username', 'firstname', 'lastname', 'email', 'telephone'],
+            attributes: ['username', 'firstname', 'lastname', 'email', 'telephone', 'avatar'],
             where: {
                 id: req.userID
             }
