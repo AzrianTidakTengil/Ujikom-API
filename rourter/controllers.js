@@ -8,6 +8,7 @@ const trolley = require('../controllers/trolley')
 const transaction = require('../controllers/transaction')
 const user = require('../controllers/user')
 const address = require("../controllers/address")
+const image = require("../controllers/image")
 
 module.exports = {
     auth,
@@ -19,5 +20,6 @@ module.exports = {
     trolley,
     transaction,
     user,
-    address
+    address,
+    image
 }
