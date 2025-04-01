@@ -9,6 +9,8 @@ module.exports = function (app) {
 
     // user
     app.get('/api/user', [middleware.verify.verifyToken], controllers.user.GetOne)
+    app.post('/api/user/avatar', [middleware.verify.verifyToken],controllers.image.UploadImage)
+    app.delete('/api/user/avatar', [middleware.verify.verifyToken],controllers.image.DeleteImage)
 
     // produtcs
     app.post('/api/items', [], controllers.produtcs.All)
@@ -81,4 +83,5 @@ module.exports = function (app) {
             status: 'success'
         })
     })
+    app.get('/api/test/image', controllers.image.TestImage)
 }
