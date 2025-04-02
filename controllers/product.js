@@ -493,6 +493,63 @@ async function CreateSubVariant(req, res) {
     }
 }
 
+async function Variant(req, res) {
+    try {
+        const {id} = await Store.findOne({
+            where: {
+                user_id: req.userID
+            }
+        })
+
+        const globalVariant = await TipeVariant.findAll({
+            where: {
+                shop_id: null
+            }
+        })
+
+        const variant = await TipeVariant.findAll({
+            where: {
+                shop_id: id
+            }
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Get variant',
+            data: [
+                ...globalVariant,
+                ...variant
+            ]
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
+async function SubVariant(req, res) {
+    try {
+        const subVariant = await TipeSubVariant.findAll({
+            where: {
+                variant_id: req.body.variant_id
+            }
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Get subvariant',
+            data: subVariant
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
 module.exports = {
     All,
     One,
@@ -506,4 +563,6 @@ module.exports = {
     TreeListCategory,
     CreateVariant,
     CreateSubVariant,
+    Variant,
+    SubVariant,
 }
