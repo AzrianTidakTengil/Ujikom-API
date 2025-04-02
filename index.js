@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 })
 
 
-require('./rourter/rourter.js')(app)
+require('./rourte/route.js')(app)
 
 db.sequelize.sync().then(() => {
     app.listen(port, () => {
