@@ -9,7 +9,9 @@ const Op = db.Sequelize.Op
 const Trolley = require('../models').Trolley
 const Transaction = require('../models').Transaction
 const ProductsImage = require('../models').ProductsImage
-
+const CategoryType1 = require('../models').CategoryType1
+const CategoryType2 = require('../models').CategoryType2
+const CategoryType3 = require('../models').CategoryType3
 
 async function All(req, res) {
     try {
@@ -376,6 +378,51 @@ async function MyStore(req, res) {
     }
 }
 
+async function TreeListCategory(req, res) {
+    try {
+        const tree = []
+
+        const categories = await CategoryType1.findAll({
+            include: [
+                {
+                    model: CategoryType2,
+                    as: 'type1ToType2',
+                    include: [
+                        {
+                            model: CategoryType3,
+                            as: 'type2ToType3'
+                        }
+                    ]
+                }
+            ]
+        })
+
+        for (var category of categories) {
+            for (var subcategory of category.type1ToType2) {
+                for (var brand of subcategory.type2ToType3) {
+                    tree.push({
+                        value: [category.id, subcategory.id, brand.id],
+                        label: `${category.name} > ${subcategory.name} > ${brand.name}`
+                    })
+                }
+            }
+        }
+
+        res.json({
+            status: 'success',
+            message: 'Tree list categories',
+            data: tree
+        })
+    } catch (err) {
+
+        console.error(err)
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
 module.exports = {
     All,
     One,
@@ -385,5 +432,6 @@ module.exports = {
     Update,
     MarkProduct,
     Popular,
-    MyStore
+    MyStore,
+    TreeListCategory
 }
