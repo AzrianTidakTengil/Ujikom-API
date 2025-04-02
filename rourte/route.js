@@ -23,6 +23,8 @@ module.exports = function (app) {
     app.get('/api/item/popular', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.Popular)
     app.post('/api/item/store', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.MyStore)
     app.get('/api/items/categories/tree', [], controllers.produtcs.TreeListCategory)
+    app.create('/api/item/variant', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.Variant)
+    app.create('/api/item/subvariant', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.SubVariant)
     app.create('/api/item/variant', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.CreateVariant)
     app.create('/api/item/subvariant', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.CreateSubVariant)
 
