@@ -13,6 +13,7 @@ const CategoryType1 = require('../models').CategoryType1
 const CategoryType2 = require('../models').CategoryType2
 const CategoryType3 = require('../models').CategoryType3
 const ProductCategory = require('../models').ProductCategory
+const ProductVariant = require('../models').ProductVariant
 
 async function All(req, res) {
     try {
@@ -155,6 +156,17 @@ async function Create(req, res) {
             const images = await ProductsImage.create({
                 product_id: newProduct.id,
                 public_id: uploadResponse.public_id
+            })
+        }
+
+        for (var variant of req.body.variants) {
+            const productVariant = await ProductVariant.create({
+                product_id: newProduct.id,
+                variant_id: variant.id,
+                price: variant.price,
+                minimum_purchase: variant.minimum_purchase,
+                stock: variant.stock,
+                weight: variant.weight
             })
         }
 
