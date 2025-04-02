@@ -451,8 +451,15 @@ async function TreeListCategory(req, res) {
 
 async function CreateVariant(req, res) {
     try {
+        const {id} = await Store.findOne({
+            where: {
+                user_id: req.userID
+            }
+        })
+
         const newVariant = await TipeVariant.create({
-            name: req.body.name
+            name: req.body.name,
+            shop_id: id
         })
 
         res.json({
