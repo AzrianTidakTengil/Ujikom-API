@@ -134,8 +134,12 @@ async function Create(req, res) {
         const newProduct = await Produtcs.create({
             name: req.body.name,
             description: req.body.description,
-            price: req.body.price,
-            stock: req.body.stock
+            price: 0,
+            stock: 0,
+            condition: req.body.condition,
+            length: req.body.long,
+            width: req.body.width,
+            height: req.body.height,
         })
 
         const categories = await ProductCategory.create({
