@@ -28,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'product_id',
         as: 'productToImage'
       })
+      Produtcs.hasMany(models.ProductVariant, {
+        foreignKey: 'product_id',
+        as: 'productToProductVariant'
+      })
     }
   }
   Produtcs.init({
