@@ -14,6 +14,8 @@ const CategoryType2 = require('../models').CategoryType2
 const CategoryType3 = require('../models').CategoryType3
 const ProductCategory = require('../models').ProductCategory
 const ProductVariant = require('../models').ProductVariant
+const TipeVariant = require('../models').TipeVariant
+const TipeSubVariant = require('../models').TipeSubVariant
 
 async function All(req, res) {
     try {
@@ -447,6 +449,43 @@ async function TreeListCategory(req, res) {
     }
 }
 
+async function CreateVariant(req, res) {
+    try {
+        const newVariant = await TipeVariant.create({
+            name: req.body.name
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Create Variant',
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
+async function CreateSubVariant(req, res) {
+    try {
+        const newSubVariant = await TipeSubVariant.create({
+            name: req.body.name,
+            variant_id: req.body.variant_id
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Create Subvariant',
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
 module.exports = {
     All,
     One,
@@ -457,5 +496,7 @@ module.exports = {
     MarkProduct,
     Popular,
     MyStore,
-    TreeListCategory
+    TreeListCategory,
+    CreateVariant,
+    CreateSubVariant,
 }
