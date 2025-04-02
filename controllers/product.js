@@ -12,6 +12,7 @@ const ProductsImage = require('../models').ProductsImage
 const CategoryType1 = require('../models').CategoryType1
 const CategoryType2 = require('../models').CategoryType2
 const CategoryType3 = require('../models').CategoryType3
+const ProductCategory = require('../models').ProductCategory
 
 async function All(req, res) {
     try {
@@ -134,6 +135,13 @@ async function Create(req, res) {
             description: req.body.description,
             price: req.body.price,
             stock: req.body.stock
+        })
+
+        const categories = await ProductCategory.create({
+            product_id: newProduct.id,
+            type_1: req.body.categories[0],
+            type_2: req.body.categories[1],
+            type_3: req.body.categories[2],
         })
 
         for (var image of req.body.images) {
