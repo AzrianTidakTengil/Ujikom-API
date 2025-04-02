@@ -15,10 +15,15 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'product_id',
         as: 'type3ToProductCategory'
       })
+      CategoryType3.belongsTo(models.CategoryType2, {
+        foreignKey: 'type_2',
+        as: 'type3ToType2'
+      })
     }
   }
   CategoryType3.init({
-    name: DataTypes.STRING
+    name: DataTypes.STRING,
+    type_2: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'CategoryType3',
