@@ -11,23 +11,18 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      ProductSubvariant.belongsTo(models.Produtcs, {
-        foreignKey: 'product_id',
+      ProductSubvariant.belongsTo(models.ProductVariant, {
+        foreignKey: 'product_variant',
         as: 'subVariantToProduct'
       })
-      ProductSubvariant.belongsTo(models, {
-        foreignKey: 'variant_id',
-        as: 'subVariantToVariant'
-      })
-      ProductSubvariant.belongsTo(models, {
+      ProductSubvariant.belongsTo(models.TipeSubVariant, {
         foreignKey: 'subvariant_id',
         as: 'subVariantTosubVariant'
       })
     }
   }
   ProductSubvariant.init({
-    product_id: DataTypes.STRING,
-    variant_id: DataTypes.STRING,
+    product_variant: DataTypes.STRING,
     subvariant_id: DataTypes.STRING
   }, {
     sequelize,
