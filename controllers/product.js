@@ -16,6 +16,7 @@ const ProductCategory = require('../models').ProductCategory
 const ProductVariant = require('../models').ProductVariant
 const TipeVariant = require('../models').TipeVariant
 const TipeSubVariant = require('../models').TipeSubVariant
+const cloudinary = require('../config/storage')
 
 async function All(req, res) {
     try {
@@ -176,8 +177,14 @@ async function Create(req, res) {
             })
         }
 
+        const {id} = await Store.findOne({
+            where: {
+                user_id: req.userID
+            }
+        })
+
         const signProduct = await Owner.create({
-            store_id: req.body.store_id,
+            store_id: id,
             product_id: newProduct.id
         })
 
@@ -190,6 +197,7 @@ async function Create(req, res) {
             })
         }
     } catch (err) {
+        console.error(err.message)
         res.status(500).json({
             status: 'error',
             message: 'Internal server error'
@@ -425,6 +433,10 @@ async function TreeListCategory(req, res) {
 
         for (var category of categories) {
             for (var subcategory of category.type1ToType2) {
+                tree.push({
+                    value: [category.id, subcategory.id, null],
+                    label: `${category.name} > ${subcategory.name}`
+                })
                 for (var brand of subcategory.type2ToType3) {
                     tree.push({
                         value: [category.id, subcategory.id, brand.id],
