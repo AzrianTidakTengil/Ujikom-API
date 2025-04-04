@@ -32,6 +32,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'product_id',
         as: 'productToProductVariant'
       })
+      Produtcs.hasMany(models.ProductSubvariant, {
+        foreignKey: 'product_id',
+        as: 'productToProductSubvariant'
+      })
     }
   }
   Produtcs.init({
