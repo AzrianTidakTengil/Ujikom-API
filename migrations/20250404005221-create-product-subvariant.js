@@ -9,10 +9,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      product_id: {
-        type: Sequelize.STRING
-      },
-      variant_id: {
+      product_variant: {
         type: Sequelize.STRING
       },
       subvariant_id: {
