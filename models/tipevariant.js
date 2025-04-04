@@ -15,10 +15,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'variant_id',
         as: 'variantToSubVariant'
       })
-      TipeVariant.hasMany(models.ProductSubvariant, {
-        foreignKey: 'variant_id',
-        as: 'variantToProductSubvariant'
-      })
     }
   }
   TipeVariant.init({
