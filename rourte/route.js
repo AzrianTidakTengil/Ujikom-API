@@ -23,10 +23,10 @@ module.exports = function (app) {
     app.get('/api/item/popular', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.Popular)
     app.post('/api/item/store', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.MyStore)
     app.get('/api/items/categories/tree', [], controllers.produtcs.TreeListCategory)
-    app.get('/api/item/variant', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.Variant)
-    app.post('/api/item/subvariant', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.SubVariant)
-    app.post('/api/item/variant/create', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.CreateVariant)
-    app.post('/api/item/subvarian/createt', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.CreateSubVariant)
+    app.get('/api/items/variant', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.Variant)
+    app.post('/api/items/subvariant', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.SubVariant)
+    app.post('/api/items/variant/create', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.CreateVariant)
+    app.post('/api/items/subvarian/createt', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.CreateSubVariant)
 
     // trolley
     app.post('/api/trolley/find', [middleware.verify.verifyToken], controllers.trolley.All)
