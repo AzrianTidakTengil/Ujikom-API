@@ -17,6 +17,7 @@ const ProductVariant = require('../models').ProductVariant
 const TipeVariant = require('../models').TipeVariant
 const TipeSubVariant = require('../models').TipeSubVariant
 const cloudinary = require('../config/storage')
+const ProductSubvariant = require('../models').ProductSubvariant
 
 async function All(req, res) {
     try {
@@ -175,6 +176,13 @@ async function Create(req, res) {
                 stock: variant.stock,
                 weight: variant.weight
             })
+
+            for (var subvariant of variant.subvariant) {
+                const productSubvariant = await ProductSubvariant.create({
+                    product_variant: productVariant.id,
+                    subvariant_id: subvariant
+                })
+            }
         }
 
         const {id} = await Store.findOne({
@@ -359,9 +367,36 @@ async function Popular(req, res) {
 async function MyStore(req, res) {
     try {
         const product = await Produtcs.findAll({
+            order: [
+                ['id', 'DESC']
+            ],
             limit: req.body.limit,
             offset: req.body.offset,
             include: [
+                {
+                    model: ProductsImage,
+                    as: 'productToImage'
+                },
+                {
+                    model: ProductVariant,
+                    as: 'productToProductVariant',
+                    include: [
+                        {
+                            model: TipeVariant,
+                            as: 'productVariantToVariant'
+                        },
+                        {
+                            model: ProductSubvariant,
+                            as: 'productVariantToSubVariant',
+                            include: [
+                                {
+                                    model: TipeSubVariant,
+                                    as: 'subVariantTosubVariant'
+                                }
+                            ]
+                        }
+                    ]
+                },
                 {
                     model: Owner,
                     as: 'productToOwner',
@@ -379,7 +414,33 @@ async function MyStore(req, res) {
         })
 
         const length_product = await Produtcs.count({
+            limit: req.body.limit,
+            offset: req.body.offset,
             include: [
+                {
+                    model: ProductsImage,
+                    as: 'productToImage'
+                },
+                {
+                    model: ProductVariant,
+                    as: 'productToProductVariant',
+                    include: [
+                        {
+                            model: TipeVariant,
+                            as: 'productVariantToVariant'
+                        },
+                        {
+                            model: ProductSubvariant,
+                            as: 'productVariantToSubVariant',
+                            include: [
+                                {
+                                    model: TipeSubVariant,
+                                    as: 'subVariantTosubVariant'
+                                }
+                            ]
+                        }
+                    ]
+                },
                 {
                     model: Owner,
                     as: 'productToOwner',
@@ -405,6 +466,7 @@ async function MyStore(req, res) {
             }
         })
     } catch (err) {
+        console.error(err.message)
         res.status(500).json({
             status: 'error',
             message: 'Server Internal Error'
