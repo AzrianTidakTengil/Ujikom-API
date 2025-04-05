@@ -32,6 +32,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'product_id',
         as: 'productToProductVariant'
       })
+      Produtcs.hasOne(models.ProductCategory, {
+        foreignKey: 'product_id',
+        as: 'productToCategory'
+      })
     }
   }
   Produtcs.init({
