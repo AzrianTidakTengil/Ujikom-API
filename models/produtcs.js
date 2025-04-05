@@ -32,6 +32,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'product_id',
         as: 'productToProductVariant'
       })
+      Produtcs.hasMany(models.ProductSubvariant, {
+        foreignKey: 'product_id',
+        as: 'productToProductSubvariant'
+      })
     }
   }
   Produtcs.init({
@@ -39,6 +43,7 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.TEXT,
     price: DataTypes.INTEGER,
     stock: DataTypes.INTEGER,
+    image: DataTypes.STRING,
     condition: DataTypes.STRING,
     length: DataTypes.INTEGER,
     width: DataTypes.INTEGER,

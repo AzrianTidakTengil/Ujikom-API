@@ -13,6 +13,11 @@ const CategoryType1 = require('../models').CategoryType1
 const CategoryType2 = require('../models').CategoryType2
 const CategoryType3 = require('../models').CategoryType3
 const ProductCategory = require('../models').ProductCategory
+const ProductVariant = require('../models').ProductVariant
+const TipeVariant = require('../models').TipeVariant
+const TipeSubVariant = require('../models').TipeSubVariant
+const cloudinary = require('../config/storage')
+const ProductSubvariant = require('../models').ProductSubvariant
 
 async function All(req, res) {
     try {
@@ -133,8 +138,12 @@ async function Create(req, res) {
         const newProduct = await Produtcs.create({
             name: req.body.name,
             description: req.body.description,
-            price: req.body.price,
-            stock: req.body.stock
+            price: 0,
+            stock: 0,
+            condition: req.body.condition,
+            length: req.body.long,
+            width: req.body.width,
+            height: req.body.height,
         })
 
         const categories = await ProductCategory.create({
@@ -158,8 +167,32 @@ async function Create(req, res) {
             })
         }
 
+        for (var variant of req.body.variants) {
+            const productVariant = await ProductVariant.create({
+                product_id: newProduct.id,
+                variant_id: variant.id,
+                price: variant.price,
+                minimum_purchase: variant.minimum_purchase,
+                stock: variant.stock,
+                weight: variant.weight
+            })
+
+            for (var subvariant of variant.subvariant) {
+                const productSubvariant = await ProductSubvariant.create({
+                    product_variant: productVariant.id,
+                    subvariant_id: subvariant
+                })
+            }
+        }
+
+        const {id} = await Store.findOne({
+            where: {
+                user_id: req.userID
+            }
+        })
+
         const signProduct = await Owner.create({
-            store_id: req.body.store_id,
+            store_id: id,
             product_id: newProduct.id
         })
 
@@ -172,6 +205,7 @@ async function Create(req, res) {
             })
         }
     } catch (err) {
+        console.error(err.message)
         res.status(500).json({
             status: 'error',
             message: 'Internal server error'
@@ -333,9 +367,36 @@ async function Popular(req, res) {
 async function MyStore(req, res) {
     try {
         const product = await Produtcs.findAll({
+            order: [
+                ['id', 'DESC']
+            ],
             limit: req.body.limit,
             offset: req.body.offset,
             include: [
+                {
+                    model: ProductsImage,
+                    as: 'productToImage'
+                },
+                {
+                    model: ProductVariant,
+                    as: 'productToProductVariant',
+                    include: [
+                        {
+                            model: TipeVariant,
+                            as: 'productVariantToVariant'
+                        },
+                        {
+                            model: ProductSubvariant,
+                            as: 'productVariantToSubVariant',
+                            include: [
+                                {
+                                    model: TipeSubVariant,
+                                    as: 'subVariantTosubVariant'
+                                }
+                            ]
+                        }
+                    ]
+                },
                 {
                     model: Owner,
                     as: 'productToOwner',
@@ -353,7 +414,33 @@ async function MyStore(req, res) {
         })
 
         const length_product = await Produtcs.count({
+            limit: req.body.limit,
+            offset: req.body.offset,
             include: [
+                {
+                    model: ProductsImage,
+                    as: 'productToImage'
+                },
+                {
+                    model: ProductVariant,
+                    as: 'productToProductVariant',
+                    include: [
+                        {
+                            model: TipeVariant,
+                            as: 'productVariantToVariant'
+                        },
+                        {
+                            model: ProductSubvariant,
+                            as: 'productVariantToSubVariant',
+                            include: [
+                                {
+                                    model: TipeSubVariant,
+                                    as: 'subVariantTosubVariant'
+                                }
+                            ]
+                        }
+                    ]
+                },
                 {
                     model: Owner,
                     as: 'productToOwner',
@@ -379,6 +466,7 @@ async function MyStore(req, res) {
             }
         })
     } catch (err) {
+        console.error(err.message)
         res.status(500).json({
             status: 'error',
             message: 'Server Internal Error'
@@ -407,6 +495,10 @@ async function TreeListCategory(req, res) {
 
         for (var category of categories) {
             for (var subcategory of category.type1ToType2) {
+                tree.push({
+                    value: [category.id, subcategory.id, null],
+                    label: `${category.name} > ${subcategory.name}`
+                })
                 for (var brand of subcategory.type2ToType3) {
                     tree.push({
                         value: [category.id, subcategory.id, brand.id],
@@ -431,6 +523,107 @@ async function TreeListCategory(req, res) {
     }
 }
 
+async function CreateVariant(req, res) {
+    try {
+        const {id} = await Store.findOne({
+            where: {
+                user_id: req.userID
+            }
+        })
+
+        const newVariant = await TipeVariant.create({
+            name: req.body.name,
+            shop_id: id
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Create Variant',
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
+async function CreateSubVariant(req, res) {
+    try {
+        const newSubVariant = await TipeSubVariant.create({
+            name: req.body.name,
+            variant_id: req.body.variant_id
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Create Subvariant',
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
+async function Variant(req, res) {
+    try {
+        const {id} = await Store.findOne({
+            where: {
+                user_id: req.userID
+            }
+        })
+
+        const globalVariant = await TipeVariant.findAll({
+            where: {
+                shop_id: null
+            }
+        })
+
+        const variant = await TipeVariant.findAll({
+            where: {
+                shop_id: id
+            }
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Get variant',
+            data: [
+                ...globalVariant,
+                ...variant
+            ]
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
+async function SubVariant(req, res) {
+    try {
+        const subVariant = await TipeSubVariant.findAll({
+            where: {
+                variant_id: req.body.variant_id
+            }
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Get subvariant',
+            data: subVariant
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
 module.exports = {
     All,
     One,
@@ -441,5 +634,9 @@ module.exports = {
     MarkProduct,
     Popular,
     MyStore,
-    TreeListCategory
+    TreeListCategory,
+    CreateVariant,
+    CreateSubVariant,
+    Variant,
+    SubVariant,
 }
