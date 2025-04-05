@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
         as: 'productVariantToProduct'
       })
       ProductVariant.hasMany(models.ProductSubvariant, {
-        foreignKey: 'subvariant_id',
+        foreignKey: 'product_variant',
         as: 'productVariantToSubVariant'
       })
     }
