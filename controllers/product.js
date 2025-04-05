@@ -347,6 +347,24 @@ async function Popular(req, res) {
                     through: {
                         attributes: [],
                     },
+                },
+                {
+                    model: ProductCategory,
+                    as: 'productToCategory',
+                    include: [
+                        {
+                            model: CategoryType1,
+                            as: 'productCategoryToCategory1'
+                        },
+                        {
+                            model: CategoryType2,
+                            as: 'productCategoryToCategory2'
+                        },
+                        {
+                            model: CategoryType3,
+                            as: 'productCategoryToCategory3'
+                        }
+                    ]
                 }
             ]
         })
