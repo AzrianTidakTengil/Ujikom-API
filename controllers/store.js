@@ -135,7 +135,7 @@ async function Balance(req, res) {
                                     as: 'productToOwner',
                                     include: [
                                         {
-                                            attributes: ['name', 'description', 'address', 'postcode'],
+                                            attributes: ['name', 'description', 'address'],
                                             model: Store,
                                             as: 'ownerToStore',
                                             where: {
@@ -165,6 +165,7 @@ async function Balance(req, res) {
             }
         })
     } catch (err) {
+        console.error(err.message)
         res.status(500).json({
             status: 'error',
             message: 'Internal Server Error'
@@ -186,7 +187,7 @@ async function InTrolley(req, res) {
                     as: 'productToOwner',
                     include: [
                         {
-                            attributes: ['name', 'description', 'address', 'postcode'],
+                            attributes: ['name', 'description', 'address'],
                             model: Store,
                             as: 'ownerToStore',
                             where: {
@@ -209,6 +210,7 @@ async function InTrolley(req, res) {
             }
         })
     } catch (err) {
+        console.error(err.message)
         res.status(500).json({
             status: 'error',
             message: 'Internal Server Error'
