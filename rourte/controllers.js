@@ -9,6 +9,7 @@ const transaction = require('../controllers/transaction')
 const user = require('../controllers/user')
 const address = require("../controllers/address")
 const image = require("../controllers/image")
+const keyword = require("../controllers/keyword")
 
 module.exports = {
     auth,
@@ -21,5 +22,6 @@ module.exports = {
     transaction,
     user,
     address,
-    image
+    image,
+    keyword
 }
