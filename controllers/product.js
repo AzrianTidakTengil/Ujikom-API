@@ -22,6 +22,7 @@ const ProductSubvariant = require('../models').ProductSubvariant
 async function All(req, res) {
     try {
         const produts = await Produtcs.findAll({
+            order: db.sequelize.random(),
             limit: req.body.limit,
             offset: req.body.offset,
             include: [
@@ -33,12 +34,39 @@ async function All(req, res) {
                             model: Store,
                             as: 'ownerToStore'
                         }
-                    ]
+                    ],
+                    where: {
+
+                    }
+                },
+                {
+                    model: ProductsImage,
+                    as: 'productToImage'
+                },
+                {
+                    model: ProductVariant,
+                    as: 'productToProductVariant'
                 }
             ]
         })
 
-        const total_products = await Produtcs.count()
+        const total_products = await Produtcs.count({
+            include: [
+                {
+                    model: Owner,
+                    as: 'productToOwner',
+                    include: [
+                        {
+                            model: Store,
+                            as: 'ownerToStore'
+                        }
+                    ],
+                    where: {
+
+                    }
+                }
+            ]
+        })
 
         res.json({
             status: 'success',
