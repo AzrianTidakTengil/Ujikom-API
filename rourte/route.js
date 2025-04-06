@@ -83,7 +83,7 @@ module.exports = function (app) {
 
     app.post('/api/keyword/products', [middleware.verify.verifyToken], controllers.keyword.Product.Keyword)
     app.post('/api/keyword/products/find', [middleware.verify.verifyToken], controllers.keyword.Product.Create)
-    app.post('/api/keyword/products/delete', [middleware.verify.verifyToken], controllers.keyword.Product.Delete)
+    app.delete('/api/keyword/products/delete', [middleware.verify.verifyToken], controllers.keyword.Product.Delete)
 
     // for example
     app.post('/api/auth/hasToken', controllers.auth.SignIn)
