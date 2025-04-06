@@ -1,4 +1,5 @@
 const Users = require('../models').Users
+const Store = require('../models').Store
 
 async function GetOne(req, res) {
     try {
@@ -6,7 +7,13 @@ async function GetOne(req, res) {
             attributes: ['username', 'firstname', 'lastname', 'email', 'telephone', 'avatar'],
             where: {
                 id: req.userID
-            }
+            },
+            include: [
+                {
+                    model: Store,
+                    as: 'userToStore'
+                }
+            ]
         })
 
         res.json({
