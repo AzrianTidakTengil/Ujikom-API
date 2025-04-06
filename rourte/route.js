@@ -81,6 +81,10 @@ module.exports = function (app) {
     app.get('/api/store/address', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.address.Shop.Get)
     app.post('/api/store/address/edit', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.address.Shop.CreateOrUpdate)
 
+    app.post('/api/keyword/products', [middleware.verify.verifyToken], controllers.keyword.Product.Keyword)
+    app.post('/api/keyword/products/find', [middleware.verify.verifyToken], controllers.keyword.Product.Create)
+    app.post('/api/keyword/products/delete', [middleware.verify.verifyToken], controllers.keyword.Product.Delete)
+
     // for example
     app.post('/api/auth/hasToken', controllers.auth.SignIn)
     app.get('/api/test', async function (req, res) {
