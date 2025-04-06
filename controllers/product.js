@@ -117,24 +117,46 @@ async function One(req, res) {
 
 async function Find(req, res) {
     try {
-        const {product, category = null} = req.body
+        const {product, category = null, keyword} = req.body
 
-        const find = await Produtcs.findAll({
+        
+
+        const findLv1 = await Produtcs.findAll({
             where: {
-                name: {
-                    [Op.substring]: req.body.name
-                }
+                [Op.or]: [
+                    {
+                        name: {
+                            [Op.substring]: keyword
+                        }
+                    },
+                ]
             },
             include: [
                 {
-                    model: Mark,
-                    as: 'productToLabel',
-                    where: {
-                        label_id: {
-                            [Op.or]: req.body.category
+                    model: Owner,
+                    as: 'productToOwner',
+                    include: [
+                        {
+                            model: Store,
+                            as: 'ownerToStore'
                         }
-                    }
-                },{
+                    ]
+                }
+            ]
+        })
+
+        const findLv2 = await Produtcs.findAll({
+            where: {
+                [Op.or]: [
+                    ...keyword.split(" ").map((word) => ({
+                        name: {
+                            [Op.substring]: word
+                        }
+                    }))
+                ]
+            },
+            include: [
+                {
                     model: Owner,
                     as: 'productToOwner',
                     include: [
@@ -150,7 +172,10 @@ async function Find(req, res) {
         res.json({
             status: 'success',
             message: 'Get data with association',
-            data: find
+            data: [
+                ...findLv1,
+                ...findLv2,
+            ]
         })
     } catch (err) {
         console.log(err)
