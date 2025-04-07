@@ -140,7 +140,18 @@ async function Find(req, res) {
                             model: Store,
                             as: 'ownerToStore'
                         }
-                    ]
+                    ],
+                    where: {
+
+                    }
+                },
+                {
+                    model: ProductsImage,
+                    as: 'productToImage'
+                },
+                {
+                    model: ProductVariant,
+                    as: 'productToProductVariant'
                 }
             ]
         })
@@ -164,7 +175,18 @@ async function Find(req, res) {
                             model: Store,
                             as: 'ownerToStore'
                         }
-                    ]
+                    ],
+                    where: {
+
+                    }
+                },
+                {
+                    model: ProductsImage,
+                    as: 'productToImage'
+                },
+                {
+                    model: ProductVariant,
+                    as: 'productToProductVariant'
                 }
             ]
         })
