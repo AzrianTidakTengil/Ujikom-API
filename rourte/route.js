@@ -1,16 +1,23 @@
 const middleware = require('./middleware')
 const controllers = require('./controllers')
+const passport = require('passport');
 
 module.exports = function (app) {
 
     // auth
-    app.post('/api/auth/signup', [middleware.auth.checkEmailOrTel], controllers.auth.SignUp)
+    app.post('/api/auth/signup', [], controllers.auth.SignUp)
     app.post('/api/auth/signin', controllers.auth.SignIn)
+    app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
+    app.get('/api/auth/google/callback', passport.authenticate('google', {failureRedirect: '/'}), controllers.auth.GoggleSignCallback)
+    app.get('/api/auth/logout', [], controllers.auth.Logout)
+    app.post('/api/auth/otp', [middleware.auth.checkEmail], controllers.auth.VerifyEmail)
+    app.post('/api/auth/otp/verify', [middleware.auth.ClearExpireOTP], controllers.auth.verifyOTP)
 
     // user
     app.get('/api/user', [middleware.verify.verifyToken], controllers.user.GetOne)
     app.post('/api/user/avatar', [middleware.verify.verifyToken],controllers.image.UploadImage)
     app.delete('/api/user/avatar', [middleware.verify.verifyToken],controllers.image.DeleteImage)
+    app.post('/api/user/password', [middleware.verify.verifyToken], controllers.user.Password)
 
     // produtcs
     app.post('/api/items', [], controllers.produtcs.All)
@@ -93,4 +100,9 @@ module.exports = function (app) {
         })
     })
     app.get('/api/test/image', controllers.image.TestImage)
+    app.get('/api/auth/test', [middleware.auth.IsAuthenticated], async function (req, res) {
+        res.json({
+            status: 'success'
+        })
+    })
 }
