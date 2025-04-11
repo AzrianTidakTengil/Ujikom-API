@@ -1,19 +1,17 @@
 const Users = require('../models/index.js').Users
 const db = require('../models/index')
+const Otp = require('../models').OTP
 const Op = db.Sequelize.Op
 
-async function checkEmailOrTel(req, res, next) {
+async function checkEmail(req, res, next) {
    try {
         const isValid = await Users.findOne({
             where: {
-                [Op.or]: {
-                    email: req.body.email,
-                    telephone: req.body.telephone
-                }
+                email: req.body.email
             }
         })
         if (isValid) {
-            res.status(400).json({
+            res.status(401).json({
                 status: 'failed',
                 message: 'email or telephone are ready taken'
             })
@@ -29,6 +27,56 @@ async function checkEmailOrTel(req, res, next) {
    }
 }
 
+async function IsAuthenticated(req, res, next) {
+    try {
+        if (req.isAuthenticated()) {
+            next()
+        }
+        res.status(401).json({
+            status: 'error',
+            message: 'Not authenticated'
+        })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        })
+    }
+}
+
+async function ClearExpireOTP(req, res, next) {
+    try {
+        const code = await Otp.findAll({})
+
+        for (var c of code) {
+            const otpTime = new Date(c.createdAt);
+            const now = new Date();
+
+            const diffInMs = now - otpTime; // difference in milliseconds
+            const diffInMinutes = diffInMs / (1000 * 60); // convert to minutes
+
+            if (diffInMinutes > 5) {
+                Otp.destroy({
+                    where: {
+                        code: c.code
+                    }
+                })
+            } 
+        }
+
+        next()
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        })
+    }
+}
+
 module.exports = {
-    checkEmailOrTel
+    checkEmail,
+    IsAuthenticated,
+    ClearExpireOTP
 }
