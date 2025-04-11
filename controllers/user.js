@@ -29,6 +29,25 @@ async function GetOne(req, res) {
     }
 }
 
+async function Password(req, res) {
+    try {
+        const user = await Users.update({
+            password: req.body.password,
+        }, {
+            where: {
+                id: req.userID
+            }
+        })
+    } catch(err) {
+        console.error(err)
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        })
+    }
+}
+
 module.exports = {
-    GetOne
+    GetOne,
+    Password
 }
