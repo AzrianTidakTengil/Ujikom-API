@@ -84,7 +84,7 @@ passport.deserializeUser((user, done) => {
     })
 })
 
-require('./rourte/route.js')(app)
+require('./router/route.js')(app)
 
 db.sequelize.sync().then(() => {
     app.listen(port, () => {
