@@ -4,6 +4,12 @@ const Owner = require('../models').OwnerProduct
 const Store = require('../models').Store
 const db = require('../models/index')
 const Op = db.Sequelize.Op
+const { Sequelize } = require('sequelize')
+const ProductsImage = require('../models').ProductsImage
+const ProductVariant = require('../models').ProductVariant
+const TipeVariant = require('../models').TipeVariant
+const TipeSubVariant = require('../models').TipeSubVariant
+const ProductSubvariant = require('../models').ProductSubvariant
 
 async function All(req, res) {
     try {
@@ -28,7 +34,7 @@ async function All(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
         })
 
         res.json({
@@ -53,9 +59,35 @@ async function List(req, res) {
             include: [
                 {
                     model: Products,
-                    as: 'trolleyToProduct'
+                    as: 'trolleyToProduct',
+                    include: [
+                        {
+                            model: ProductsImage,
+                            as: 'productToImage'
+                        },
+                        {
+                            model: ProductVariant,
+                            as: 'productToProductVariant',
+                            include: [
+                                {
+                                    model: TipeVariant,
+                                    as: 'productVariantToVariant'
+                                },
+                                {
+                                    model: ProductSubvariant,
+                                    as: 'productVariantToSubVariant',
+                                    include: [
+                                        {
+                                            model: TipeSubVariant,
+                                            as: 'subVariantTosubVariant'
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                    ],
                 }
-            ]
+            ],
         })
 
         res.json({
@@ -65,6 +97,7 @@ async function List(req, res) {
             price: trolley.reduce((acc, val) => acc + (val.trolleyToProduct.price * val.items), 0)
         })
     } catch (err) {
+        console.error(err)
         res.status(500).json({
             status: 'error',
             message: 'Internal Server Error'
@@ -76,12 +109,24 @@ async function Create(req, res) {
     try {
         const trolley = []
         for (var product of req.body.products) {
-            const item = await Trolley.create({
-                user_id: req.userID,
-                product_id: product.id,
-                items: product.items,
+            const inTrolley = await Trolley.findOne({
+                where: {
+                    product_id: product.id
+                }
             })
-            trolley.push(item)
+
+            if (inTrolley) {
+                inTrolley.update({
+                    items: inTrolley.items + product.items
+                })
+            } else {
+                const item = await Trolley.create({
+                    user_id: req.userID,
+                    product_id: product.id,
+                    items: product.items,
+                })
+                trolley.push(item)
+            }
         }
         res.json({
             status: 'success',
