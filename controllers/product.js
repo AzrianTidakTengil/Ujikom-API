@@ -98,6 +98,48 @@ async function One(req, res) {
                             as: 'ownerToStore'
                         }
                     ]
+                },
+                {
+                    model: ProductsImage,
+                    as: 'productToImage'
+                },
+                {
+                    model: ProductVariant,
+                    as: 'productToProductVariant',
+                    include: [
+                        {
+                            model: TipeVariant,
+                            as: 'productVariantToVariant'
+                        },
+                        {
+                            model: ProductSubvariant,
+                            as: 'productVariantToSubVariant',
+                            include: [
+                                {
+                                    model: TipeSubVariant,
+                                    as: 'subVariantTosubVariant'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    model: ProductCategory,
+                    as: 'productToCategory',
+                    include: [
+                        {
+                            model: CategoryType1,
+                            as: 'productCategoryToCategory1'
+                        },
+                        {
+                            model: CategoryType2,
+                            as: 'productCategoryToCategory2'
+                        },
+                        {
+                            model: CategoryType3,
+                            as: 'productCategoryToCategory3'
+                        }
+                    ]
                 }
             ]
         })
@@ -567,6 +609,121 @@ async function MyStore(req, res) {
     }
 }
 
+async function VisitProductShop(req, res) {
+    try {
+
+        const {store_id} = await Owner.findOne({
+            where: {
+                product_id: req.body.id
+            }
+        })
+
+        const product = await Produtcs.findAll({
+            order: db.sequelize.random(),
+            limit: req.body.limit,
+            offset: req.body.offset,
+            include: [
+                {
+                    model: ProductsImage,
+                    as: 'productToImage'
+                },
+                {
+                    model: ProductVariant,
+                    as: 'productToProductVariant',
+                    include: [
+                        {
+                            model: TipeVariant,
+                            as: 'productVariantToVariant'
+                        },
+                        {
+                            model: ProductSubvariant,
+                            as: 'productVariantToSubVariant',
+                            include: [
+                                {
+                                    model: TipeSubVariant,
+                                    as: 'subVariantTosubVariant'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    model: Owner,
+                    as: 'productToOwner',
+                    include: [
+                        {
+                            model: Store,
+                            as: 'ownerToStore',
+                            where: {
+                                id: store_id
+                            }
+                        }
+                    ]
+                }
+            ]
+        })
+
+        const length_product = await Produtcs.count({
+            limit: req.body.limit,
+            offset: req.body.offset,
+            include: [
+                {
+                    model: ProductsImage,
+                    as: 'productToImage'
+                },
+                {
+                    model: ProductVariant,
+                    as: 'productToProductVariant',
+                    include: [
+                        {
+                            model: TipeVariant,
+                            as: 'productVariantToVariant'
+                        },
+                        {
+                            model: ProductSubvariant,
+                            as: 'productVariantToSubVariant',
+                            include: [
+                                {
+                                    model: TipeSubVariant,
+                                    as: 'subVariantTosubVariant'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    model: Owner,
+                    as: 'productToOwner',
+                    include: [
+                        {
+                            model: Store,
+                            as: 'ownerToStore',
+                            where: {
+                                id: store_id
+                            }
+                        }
+                    ]
+                }
+            ]
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Product in your store',
+            data: {
+                length_product,
+                product
+            }
+        })
+    } catch (err) {
+        console.error(err.message)
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
 async function TreeListCategory(req, res) {
     try {
         const tree = []
@@ -732,4 +889,5 @@ module.exports = {
     CreateSubVariant,
     Variant,
     SubVariant,
+    VisitProductShop,
 }
