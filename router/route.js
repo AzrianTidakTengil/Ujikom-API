@@ -29,6 +29,7 @@ module.exports = function (app) {
     app.put('/api/item/mark', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.MarkProduct)
     app.get('/api/item/popular', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.Popular)
     app.post('/api/item/store', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.MyStore)
+    app.post('/api/item/store/summary', [middleware.verify.verifyToken], controllers.produtcs.VisitProductShop)
     app.get('/api/items/categories/tree', [], controllers.produtcs.TreeListCategory)
     app.get('/api/items/variant', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.Variant)
     app.post('/api/items/subvariant', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.produtcs.SubVariant)
