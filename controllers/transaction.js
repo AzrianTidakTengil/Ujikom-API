@@ -9,11 +9,18 @@ const ItemsTransaction = require('../models').ItemsTransaction
 const Users = require('../models').Users
 const midtransClient = require('midtrans-client') 
 const db = require('../models/index')
+const { Status } = require('../config/checkingorderstatus')
 const Op = db.Sequelize.Op
 const AddressUser = require('../models').AddressUser
+const ProductVariant = require('../models').ProductVariant
+const TipeVariant = require('../models').TipeVariant
+const TipeSubVariant = require('../models').TipeSubVariant
+const ProductSubvariant = require('../models').ProductSubvariant
 
 async function One(req, res) {
     try {
+        Status()
+
         const {id} = req.body
 
         const transaction = await Transaction.findOne({
@@ -207,15 +214,36 @@ async function Create(req, res) {
             include: [
                 {
                     model: Products,
-                    as: 'trolleyToProduct'
+                    as: 'trolleyToProduct',
+                    include: [
+                        {
+                            model: ProductVariant,
+                            as: 'productToProductVariant',
+                            include: [
+                                {
+                                    model: TipeVariant,
+                                    as: 'productVariantToVariant'
+                                },
+                                {
+                                    model: ProductSubvariant,
+                                    as: 'productVariantToSubVariant',
+                                    include: [
+                                        {
+                                            model: TipeSubVariant,
+                                            as: 'subVariantTosubVariant'
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                    ]
                 }
             ]
         })
 
-        const gross_amount = trolley.reduce((acc, val) => acc + (val.trolleyToProduct.price * val.items), 0)
-
+        const gross_amount = trolley.reduce((acc, val) => acc + ((val.trolleyToProduct.price + val.trolleyToProduct.productToProductVariant.reduce((a, v) => a + (v.price), 0)) * val.items), 0)
         const finalTransaction = await transaction.update({
-            total_price: gross_amount
+            total_price: gross_amount + 2000
         })
 
 
@@ -239,6 +267,7 @@ async function Create(req, res) {
                     custom_expiry: {expiry_duration: 24, unit: 'hour'},
                 })
             }).then(res => res.json()).then(data => {
+                console.log(data)
                 Payment.create({
                     order_id: data.order_id,
                     payment_method: data.payment_type,

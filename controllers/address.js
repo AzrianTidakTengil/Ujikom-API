@@ -64,6 +64,9 @@ async function One(req, res) {
                 {
                     model: HasAddress,
                     as: 'selectedAddressUser',
+                    where: {
+                        user_id: req.userID
+                    }
                 },
             ]
         })

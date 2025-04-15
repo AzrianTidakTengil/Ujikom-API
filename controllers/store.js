@@ -123,6 +123,9 @@ async function Balance(req, res) {
                     attributes: ['product_id', 'items'],
                     model: Trolley,
                     as: 'transactionToTrolley',
+                    where: {
+
+                    },
                     include: [
                         {
                             attributes: ['name', 'price'],
@@ -268,6 +271,9 @@ async function Order(req, res) {
                     attributes: ['product_id', 'items'],
                     model: Trolley,
                     as: 'transactionToTrolley',
+                    where: {
+
+                    },
                     include: [
                         {
                             attributes: ['name', 'price'],
@@ -275,12 +281,12 @@ async function Order(req, res) {
                             as: 'trolleyToProduct',
                             include: [
                                 {
-                                    attributes: [],
+                                    attributes: ['id', 'store_id'],
                                     model: Owner,
                                     as: 'productToOwner',
                                     include: [
                                         {
-                                            attributes: ['name', 'description', 'address', 'postcode'],
+                                            attributes: ['name', 'description', 'address'],
                                             model: Store,
                                             as: 'ownerToStore',
                                             where: {
@@ -337,22 +343,22 @@ async function Order(req, res) {
                     }
                 },
                 {
-                    attributes: ['product_id', 'items'],
+                    attributes: ['items'],
                     model: Trolley,
                     as: 'transactionToTrolley',
                     include: [
                         {
-                            attributes: ['name', 'price'],
+                            attributes: ['id', 'name', 'price'],
                             model: Products,
                             as: 'trolleyToProduct',
                             include: [
                                 {
-                                    attributes: [],
+                                    attributes: ['id', 'store_id'],
                                     model: Owner,
                                     as: 'productToOwner',
                                     include: [
                                         {
-                                            attributes: ['name', 'description', 'address', 'postcode'],
+                                            attributes: ['name', 'description', 'address'],
                                             model: Store,
                                             as: 'ownerToStore',
                                             where: {
@@ -371,12 +377,18 @@ async function Order(req, res) {
             ]
         })
 
+        const filter = transaction.filter(transaction =>
+            transaction.transactionToTrolley.some(trolley =>
+              trolley.trolleyToProduct.productToOwner !== null
+            )
+          );
+
         res.json({
             status: 'success',
             message: 'List Order Product',
             data: {
                 length_order_process,
-                transaction
+                transaction: [...filter]
             }
         })
     } catch (err) {

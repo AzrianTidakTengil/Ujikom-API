@@ -3,7 +3,6 @@ const config = require('../config/configRoles')
 const User = require('../models').Users
 
 async function verifyToken(req, res, next) {
-    console.log(req.headers)
     const tokenHeader = req.headers['x-access-token']
 
     if (tokenHeader) {

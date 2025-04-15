@@ -322,7 +322,7 @@ async function Create(req, res) {
             })
         }
     } catch (err) {
-        console.error(err.message)
+        console.error(err)
         res.status(500).json({
             status: 'error',
             message: 'Internal server error'

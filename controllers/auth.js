@@ -260,6 +260,47 @@ async function verifyOTP(req, res) {
     }
 }
 
+async function ChangeToShop(req, res) {
+    try {
+        const addressShop = await AddressShop.create({
+            address: req.body.address,
+            district: req.body.district,
+            city: req.body.city,
+            province: req.body.province,
+            country: req.body.country,
+            postal_code: 0,
+            latitude: 0,
+            longtitude: 0,
+        })
+
+        const shop = await Store.create({
+            user_id: req.userID,
+            name: req.body.name,
+            description: req.body.description,
+            address: addressShop.id,
+            category_id: 0
+        })
+
+        const user = await Users.update({
+            role_id: 2
+        }, {
+            where: {
+                id: req.userID
+            }
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Change role to be a seller'
+        })
+    } catch(err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        })
+    }
+}
+
 module.exports = {
     SignUp,
     SignIn,
@@ -268,4 +309,5 @@ module.exports = {
     Logout,
     VerifyEmail,
     verifyOTP,
+    ChangeToShop,
 }

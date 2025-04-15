@@ -1,16 +1,23 @@
 const Role = require('../models').Roles
+const Users = require('../models').Users
 
 async function IsSeller(req, res, next) {
     try {
+        const user = await Users.findOne({
+            where: {
+                id: req.userID
+            }
+        })
+
         const validate = await Role.findOne({
             where: {
-                id: req.role
+                id: user.role_id
             }
         })
         if (validate.name === 'seller') {
             next()
         } else {
-            res.status(500).json({
+            res.status(401).json({
                 status: 'failed',
                 message: 'Role is not register'
             })
