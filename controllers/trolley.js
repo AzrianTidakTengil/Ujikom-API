@@ -31,7 +31,31 @@ async function All(req, res) {
                                     as: 'ownerToStore'
                                 }
                             ]
-                        }
+                        },
+                        {
+                            model: ProductsImage,
+                            as: 'productToImage'
+                        },
+                        {
+                            model: ProductVariant,
+                            as: 'productToProductVariant',
+                            include: [
+                                {
+                                    model: TipeVariant,
+                                    as: 'productVariantToVariant'
+                                },
+                                {
+                                    model: ProductSubvariant,
+                                    as: 'productVariantToSubVariant',
+                                    include: [
+                                        {
+                                            model: TipeSubVariant,
+                                            as: 'subVariantTosubVariant'
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
                     ]
                 }
             ],
@@ -128,6 +152,9 @@ async function Create(req, res) {
                 trolley.push(item)
             }
         }
+
+        console.log(req.userID)
+
         res.json({
             status: 'success',
             message: 'create a item in trolley',

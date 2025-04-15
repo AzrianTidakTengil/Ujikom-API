@@ -12,6 +12,7 @@ module.exports = function (app) {
     app.get('/api/auth/logout', [], controllers.auth.Logout)
     app.post('/api/auth/otp', [middleware.auth.checkEmail], controllers.auth.VerifyEmail)
     app.post('/api/auth/otp/verify', [middleware.auth.ClearExpireOTP], controllers.auth.verifyOTP)
+    app.post('/api/auth/openshop', [middleware.verify.verifyToken], controllers.auth.ChangeToShop)
 
     // user
     app.get('/api/user', [middleware.verify.verifyToken], controllers.user.GetOne)
