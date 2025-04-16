@@ -5,6 +5,7 @@ const db = require('./models')
 const session = require('express-session')
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const cloudinary = require('./config/storage')
 
 const app = express()
 const port = 3001
@@ -53,14 +54,21 @@ passport.use(new GoogleStrategy({
         return done(null, user)
     }
 
+    const uploadResponse = await cloudinary.v2.uploader.upload(profile.photos[0].value, {
+        folder: "avatar",
+        transformation: [
+            { quality: "auto:low" }
+        ] 
+    });
+
     const userCreated = await db.Users.create({
         username: profile.displayName,
         firstname: profile.name.givenName,
         lastname: profile.name.familyName,
         email: profile.emails[0].value,
         telephone: null,
-        password: null,
-        avatar: null,
+        password: 'GOOGLE',
+        avatar: uploadResponse.public_id,
         role_id: 3,
     })
 
