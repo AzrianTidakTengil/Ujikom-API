@@ -56,7 +56,6 @@ async function SignUp(req, res, next) {
 
 async function SignIn(req, res, next) {
     try {
-        console.log(req.body)
         const validate = await Users.findOne({
             where: {
                 [Op.or]: {
@@ -112,20 +111,38 @@ async function GoggleSignUp(req, res) {
 
 async function GoggleSignCallback(req, res) {
     try {
-        const {password} = await Users.findOne({
+        const user = await Users.findOne({
             where: {
-                id: req.user.id
+                id: req.user.id,
+                password: 'GOOGLE'
             }
         })
 
-        if (password) {
+        const store = await Store.findOne({
+            where: {
+                user_id: req.user.id
+            }
+        })
+
+        if (user) {
+            var token = jwt.sign({
+                userID: user.id,
+                role: user.role_id,
+                store: store ? store.id : null
+            }, config.secretKey, {
+                expiresIn: 7*24*60*60
+            })
             res.redirect('http://localhost:3000/')
         } else {
-            res.redirect('http://localhost:3000/register/setpassword')
+            res.redirect('http://localhost:3000/register/')
         }
 
     } catch (err) {
         console.error(err)
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        })
     }
 }
 
