@@ -67,7 +67,7 @@ async function SignIn(req, res, next) {
         if (!validate) {
             res.status(400).json({
                 status:'failed',
-                message:'Invalid Email or telephon'
+                message:'Invalid Email or Password'
             })
         }
         else {
@@ -89,6 +89,11 @@ async function SignIn(req, res, next) {
                     status:'success',
                     message: `Succes to login as ${validate.username}`,
                     accessToken: `${token}`
+                })
+            } else {
+                res.status(400).json({
+                    status:'failed',
+                    message:'Invalid Email or Password'
                 })
             }
         }
@@ -124,17 +129,18 @@ async function GoggleSignCallback(req, res) {
             }
         })
 
+        var token = jwt.sign({
+            userID: user.id,
+            role: user.role_id,
+            store: store ? store.id : null
+        }, config.secretKey, {
+            expiresIn: 7*24*60*60
+        })
+
         if (user) {
-            var token = jwt.sign({
-                userID: user.id,
-                role: user.role_id,
-                store: store ? store.id : null
-            }, config.secretKey, {
-                expiresIn: 7*24*60*60
-            })
             res.redirect('http://localhost:3000/')
         } else {
-            res.redirect('http://localhost:3000/register/')
+            res.redirect('http://localhost:3000/register?success=true')
         }
 
     } catch (err) {
