@@ -116,7 +116,7 @@ async function Balance(req, res) {
                     model: Payment,
                     as: 'transactionToPayment',
                     where: {
-                        status: 'settlement'
+                        status: 'success'
                     }
                 },
                 {
@@ -157,14 +157,20 @@ async function Balance(req, res) {
             ]
         })
 
-        const totalBalance = transaction.reduce((acc, order) => acc + (order.transactionToTrolley.reduce((a, val) => a + (val.items * val.trolleyToProduct.price), 0)), 0)
+        const filter = transaction.filter(transaction =>
+            transaction.transactionToTrolley.some(trolley =>
+              trolley.trolleyToProduct.productToOwner !== null
+            )
+        );
+
+        const totalBalance = filter.reduce((acc, order) => acc + (order.transactionToTrolley.reduce((a, val) => a + (val.items * val.trolleyToProduct.price), 0)), 0)
 
         res.json({
             status: 'success',
             message: 'Balance shop information',
             data: {
                 balance: totalBalance,
-                transaction
+                transaction: [...filter]
             }
         })
     } catch (err) {
@@ -188,11 +194,13 @@ async function InTrolley(req, res) {
                     attributes: [],
                     model: Owner,
                     as: 'productToOwner',
+                    required: true,
                     include: [
                         {
                             attributes: ['name', 'description', 'address'],
                             model: Store,
                             as: 'ownerToStore',
+                            required: true,
                             where: {
                                 user_id: req.userID
                             }
@@ -381,7 +389,7 @@ async function Order(req, res) {
             transaction.transactionToTrolley.some(trolley =>
               trolley.trolleyToProduct.productToOwner !== null
             )
-          );
+        );
 
         res.json({
             status: 'success',
