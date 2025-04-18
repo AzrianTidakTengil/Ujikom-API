@@ -63,6 +63,7 @@ module.exports = function (app) {
     app.delete('/api/label/delivery/delete', [middleware.verify.verifyToken, middleware.role.IsAdmin], controllers.delivery.Label.Destroy)
     
     // store
+    app.get('/api/seller/:id', [middleware.verify.verifyToken], controllers.store.FindSeller)
     app.get('/api/seller', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.BySeller)
     app.post('/api/store/create', [middleware.verify.verifyToken, middleware.store.CheckDoubleStore], controllers.store.Add)
     app.put('/api/store/update', [middleware.verify.verifyToken, middleware.role.IsSeller], controllers.store.Update)

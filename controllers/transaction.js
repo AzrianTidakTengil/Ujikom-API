@@ -12,10 +12,18 @@ const db = require('../models/index')
 const { Status } = require('../config/checkingorderstatus')
 const Op = db.Sequelize.Op
 const AddressUser = require('../models').AddressUser
+const ProductsImage = require('../models').ProductsImage
+const CategoryType1 = require('../models').CategoryType1
+const CategoryType2 = require('../models').CategoryType2
+const CategoryType3 = require('../models').CategoryType3
+const ProductCategory = require('../models').ProductCategory
 const ProductVariant = require('../models').ProductVariant
 const TipeVariant = require('../models').TipeVariant
 const TipeSubVariant = require('../models').TipeSubVariant
+const cloudinary = require('../config/storage')
 const ProductSubvariant = require('../models').ProductSubvariant
+const Owner = require('../models').OwnerProduct
+const Store = require('../models').Store
 
 async function One(req, res) {
     try {
@@ -114,13 +122,75 @@ async function List(req, res) {
             },
             include: [
                 {
+                    attributes: ['id', 'order_id', 'payment_method', 'subtype', 'status'],
+                    model: Payment,
+                    as: 'transactionToPayment',
+                    where: {
+                        status: req.body.status
+                    }
+                },
+                {
                     attributes: ['id', 'product_id', 'items'],
                     model: Trolley,
                     as: 'transactionToTrolley',
                     include: [
                         {
                             model: Products,
-                            as: 'trolleyToProduct'
+                            as: 'trolleyToProduct',
+                            include: [
+                                {
+                                    model: Owner,
+                                    as: 'productToOwner',
+                                    include: [
+                                        {
+                                            model: Store,
+                                            as: 'ownerToStore'
+                                        }
+                                    ]
+                                },
+                                {
+                                    model: ProductsImage,
+                                    as: 'productToImage'
+                                },
+                                {
+                                    model: ProductVariant,
+                                    as: 'productToProductVariant',
+                                    include: [
+                                        {
+                                            model: TipeVariant,
+                                            as: 'productVariantToVariant'
+                                        },
+                                        {
+                                            model: ProductSubvariant,
+                                            as: 'productVariantToSubVariant',
+                                            include: [
+                                                {
+                                                    model: TipeSubVariant,
+                                                    as: 'subVariantTosubVariant'
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    model: ProductCategory,
+                                    as: 'productToCategory',
+                                    include: [
+                                        {
+                                            model: CategoryType1,
+                                            as: 'productCategoryToCategory1'
+                                        },
+                                        {
+                                            model: CategoryType2,
+                                            as: 'productCategoryToCategory2'
+                                        },
+                                        {
+                                            model: CategoryType3,
+                                            as: 'productCategoryToCategory3'
+                                        }
+                                    ]
+                                }
+                            ]
                         }
                     ],
                     through: {
