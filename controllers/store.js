@@ -16,6 +16,7 @@ const dayjs = require('dayjs')
 const Delivery = require('../models').Delivery
 const Shipment = require('../models').Shipment
 const Address = require('../models').Address
+const AddressShop = require('../models').AddressShop
 
 async function BySeller(req, res) {
     try {
@@ -475,6 +476,33 @@ async function HandleOrderStatus(req, res) {
     }
 }
 
+async function FindSeller(req, res) {
+    try {
+        const store = await Store.findOne({
+            attributes: ['name','description'],
+            where: {
+                id: req.params.id
+            },
+            include: [
+                {
+                    model: AddressShop,
+                    as: 'shopToAddress'
+                }
+            ]
+        })
+        res.json({
+            status: 'success',
+            message: 'Get Information Shop',
+            data: store
+        })
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Server Internal Error'
+        })
+    }
+}
+
 module.exports = {
     Add,
     Update,
@@ -483,5 +511,6 @@ module.exports = {
     InTrolley,
     Order,
     Operation,
-    HandleOrderStatus
+    HandleOrderStatus,
+    FindSeller
 }

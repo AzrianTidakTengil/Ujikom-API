@@ -10,6 +10,7 @@ const ProductVariant = require('../models').ProductVariant
 const TipeVariant = require('../models').TipeVariant
 const TipeSubVariant = require('../models').TipeSubVariant
 const ProductSubvariant = require('../models').ProductSubvariant
+const ItemsTransaction = require('../models').ItemsTransaction
 
 async function All(req, res) {
     try {
@@ -114,11 +115,26 @@ async function List(req, res) {
             ],
         })
 
+        const trolleyId = trolley.map((t) => t.id)
+
+        const inTransaction = await ItemsTransaction.findAll({
+            where: {
+                trolley_id: {
+                    [Op.in]: trolleyId
+                }
+            },
+            group: ['trolley_id']
+        })
+
+        const trolleyWithOutTransaction = trolley.filter((tro) => !inTransaction.map((tran) => tran.trolley_id).includes(tro.id))
+
         res.json({
             status: 'success',
             message: 'trolley user',
-            data: trolley,
-            price: trolley.reduce((acc, val) => acc + (val.trolleyToProduct.price * val.items), 0)
+            data: [
+                ...trolleyWithOutTransaction
+            ],
+            price: trolley.reduce((acc, val) => acc + (val.trolleyToProduct.price * val.items), 0),
         })
     } catch (err) {
         console.error(err)
