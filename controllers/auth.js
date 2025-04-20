@@ -13,6 +13,7 @@ const AddressShop = require('../models').AddressShop
 const Otp = require('../models').OTP
 const passport = require('passport');
 const { transporter } = require('../config/tranposteremail.js');
+const {encrypt, decrypt} = require('../config/helper')
 
 async function SignUp(req, res, next) {
     try {
