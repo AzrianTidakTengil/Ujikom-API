@@ -161,8 +161,6 @@ async function Find(req, res) {
     try {
         const {product, category = null, keyword} = req.body
 
-        
-
         const findLv1 = await Produtcs.findAll({
             where: {
                 [Op.or]: [
@@ -233,13 +231,12 @@ async function Find(req, res) {
             ]
         })
 
+        const common = findLv1.filter(item1 => findLv2.some(item2 => item2.id === item1.id));
+
         res.json({
             status: 'success',
             message: 'Get data with association',
-            data: [
-                ...findLv1,
-                ...findLv2,
-            ]
+            data: common
         })
     } catch (err) {
         console.log(err)
