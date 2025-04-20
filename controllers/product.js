@@ -18,6 +18,7 @@ const TipeVariant = require('../models').TipeVariant
 const TipeSubVariant = require('../models').TipeSubVariant
 const cloudinary = require('../config/storage')
 const ProductSubvariant = require('../models').ProductSubvariant
+const {encrypt, decrypt, encryptProductDeep} = require('../config/helper')
 
 async function All(req, res) {
     try {
@@ -68,13 +69,16 @@ async function All(req, res) {
             ]
         })
 
+        const encryptedProducts = produts.map(p => encryptProductDeep(p));
+
         res.json({
             status: 'success',
             message: 'Get all produts',
-            data: produts,
+            data: encryptedProducts,
             total_products
         })
     } catch (err) {
+        console.error(err)
         res.status(500).json({
             status: 'error',
             message: 'Internal Server Error'
@@ -86,7 +90,7 @@ async function One(req, res) {
     try {
         const product = await Produtcs.findOne({
             where: {
-                id: req.body.id
+                id: decrypt(req.body.id)
             },
             include: [
                 {
@@ -233,10 +237,12 @@ async function Find(req, res) {
 
         const common = findLv1.filter(item1 => findLv2.some(item2 => item2.id === item1.id));
 
+        const encryptedProducts = common.map(p => encryptProductDeep(p));
+
         res.json({
             status: 'success',
             message: 'Get data with association',
-            data: common
+            data: encryptedProducts
         })
     } catch (err) {
         console.log(err)
@@ -611,7 +617,7 @@ async function VisitProductShop(req, res) {
 
         const {store_id} = await Owner.findOne({
             where: {
-                product_id: req.body.id
+                product_id: decrypt(req.body.id)
             }
         })
 
@@ -702,14 +708,16 @@ async function VisitProductShop(req, res) {
                     ]
                 }
             ]
-        })
+        })       
+
+        const encryptedProducts = product.map(p => encryptProductDeep(p));
 
         res.json({
             status: 'success',
             message: 'Product in your store',
             data: {
                 length_product,
-                product
+                product: encryptedProducts,
             }
         })
     } catch (err) {

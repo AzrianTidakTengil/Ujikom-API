@@ -24,6 +24,7 @@ const cloudinary = require('../config/storage')
 const ProductSubvariant = require('../models').ProductSubvariant
 const Owner = require('../models').OwnerProduct
 const Store = require('../models').Store
+const {encrypt, decrypt, encryptProductDeep, encryptTransactionDeep} = require('../config/helper')
 
 async function One(req, res) {
     try {
@@ -33,7 +34,7 @@ async function One(req, res) {
 
         const transaction = await Transaction.findOne({
             where: {
-                id: id
+                id: decrypt(id)
             },
             include: [
                 {
@@ -200,14 +201,15 @@ async function List(req, res) {
             ]
         })
 
+        const encryptedTransactions = transaction.map(tx => encryptTransactionDeep(tx));
+
         res.json({
             status: 'success',
             message: 'get all transaction',
-            data: transaction
+            data: encryptedTransactions
         })
     } catch (err) {
         console.error(err)
-
         res.status(500).json({
             status:'error',
             message: 'Server Internal Server'
@@ -337,7 +339,6 @@ async function Create(req, res) {
                     custom_expiry: {expiry_duration: 24, unit: 'hour'},
                 })
             }).then(res => res.json()).then(data => {
-                console.log(data)
                 Payment.create({
                     order_id: data.order_id,
                     payment_method: data.payment_type,
@@ -348,12 +349,21 @@ async function Create(req, res) {
                     transaction.update({
                         payment_id: data.id
                     })
+
+                    const response = {
+                        ...transaction.toJSON(),
+                        id: encrypt(transaction.id.toString()),
+                        user_id: encrypt(transaction.user_id.toString()),
+                        shipment_id: encrypt(transaction.shipment_id.toString()),
+                        payment_id: encrypt(transaction.payment_id.toString()),
+                    };
+
                     res.json({
                         status: 'success',
                         message: 'create a transaction',
                         data: {
                             trolley,
-                            transaction
+                            transaction: response,
                         }
                     })
                 })
@@ -391,12 +401,20 @@ async function Create(req, res) {
                     transaction.update({
                         payment_id: data.id
                     })
+                    const response = {
+                        ...transaction.toJSON(),
+                        id: encrypt(transaction.id.toString()),
+                        user_id: encrypt(transaction.user_id.toString()),
+                        shipment_id: encrypt(transaction.shipment_id.toString()),
+                        payment_id: encrypt(transaction.payment_id.toString()),
+                    };
+
                     res.json({
                         status: 'success',
                         message: 'create a transaction',
                         data: {
                             trolley,
-                            transaction
+                            transaction: response,
                         }
                     })
                 })
@@ -479,13 +497,20 @@ async function Create(req, res) {
                     transaction.update({
                         payment_id: data.id
                     })
+                    const response = {
+                        ...transaction.toJSON(),
+                        id: encrypt(transaction.id.toString()),
+                        user_id: encrypt(transaction.user_id.toString()),
+                        shipment_id: encrypt(transaction.shipment_id.toString()),
+                        payment_id: encrypt(transaction.payment_id.toString()),
+                    };
+
                     res.json({
                         status: 'success',
                         message: 'create a transaction',
                         data: {
                             trolley,
-                            transaction,
-                            delivery
+                            transaction: response,
                         }
                     })
                 })
