@@ -325,6 +325,31 @@ async function ChangeToShop(req, res) {
     }
 }
 
+
+async function ForgotPassword(req, res) {
+    try {
+        const newPassword = req.body.newpassword
+        const email = req.body.email
+        const user = await Users.update({
+            password: CryptoJS.AES.encrypt(newPassword, config.secretKey).toString()
+        }, {
+            where: {
+                email: email
+            }
+        })
+
+        res.json({
+            status: 'success',
+            message: 'Success Update Password'
+        })
+    } catch(err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        })
+    }
+}
+
 module.exports = {
     SignUp,
     SignIn,
@@ -334,4 +359,5 @@ module.exports = {
     VerifyEmail,
     verifyOTP,
     ChangeToShop,
+    ForgotPassword,
 }
